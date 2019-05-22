@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+#main {
+  display: flex;
+}
+
+#my_dataviz {
+  flex: 1;
+}
+
+.btn-group {
+  width: 200px;
+}
+
+.btn-group button {
+  display: block;
+}
+
+</style>
+<body>
+
+<!-- load the d3.js library -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<div id="main">
+
+  <!-- Create a div where the graph will take place -->
+  <div id="my_dataviz"></div>
+
+  <!-- Add buttons -->
+  <div class="btn-group">
+
+    <button onclick="update('T2')">Total temp at fan inlet</button>
+    <button onclick="update('T24')">Total temp at LPC outlet</button>
+    <button onclick="update('T30')">Total temp at HPC outlet</button>
+    <button onclick="update('T50')">Total temp at LPT outlet</button>
+    <button onclick="update('P2')">Pressure at fan inlet</button>
+    <button onclick="update('P15')">Total pressure in bypass-duct</button>
+    <button onclick="update('P30')">Total pressure at HPC outlet</button>
+    <button onclick="update('Nf')">Physical fan speed</button>
+    <button onclick="update('Nc')">Physical core speed</button>
+    <button onclick="update('epr')">Engine pressure ratio</button>
+    <button onclick="update('Ps30')">Static pressure at HPC outlet</button>
+    <button onclick="update('phi')">Ratio of fuel flow to Ps30</button>
+    <button onclick="update('NRf')">Corrected fan speed</button>
+    <button onclick="update('NRc')">Corrected core speed</button>
+    <button onclick="update('BPR')">Bypass ratio</button>
+    <button onclick="update('farB')">Burner fuel-air ratio</button>
+    <button onclick="update('htBleed')">Bleed Enthalpy</button>
+    <button onclick="update('Nf_dmd')">Demanded fan speed</button>
+    <button onclick="update('PCNfR_dmd')">Demanded corrected fan speed</button>
+    <button onclick="update('W31')">HPT coolant bleed</button>
+    <button onclick="update('W32')">LPT coolant bleed</button>
+
+  </div>
+
+</div>
+<script>
+  // set the dimensions and margins of the graph
+  var margin = {top: 30, right: 30, bottom: 70, left: 60},
+    width = 1500 - margin.left - margin.right,
+    height = 1000 - margin.top - margin.bottom;
+
+  // parse the date / time
+  //var parseTime = d3.timeParse("%d-%b-%y");
+  var svg = d3.select("#my_dataviz").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+  let contentG = svg.append("g").attr("transform", `translate(0, 0)`);
+
+  // set the ranges
+  var x = d3.scaleLinear().range([0, width]);
+  var xAxis = svg.append("g")
+    .attr("transform", "translate(0," + height + ")");
+
+  var y = d3.scaleLinear().range([height, 0]);
+  var yAxis = svg.append("g")
+    .attr("class", "myYaxis");
+
+  //Only need to read data once
+  let data = null;
+  let sumstat = null;
+  d3.csv("https://raw.githubusercontent.com/tbui001/Dataset_all/master/Dataset_full.csv", function (rawData) {
+    sumstat = d3.nest()
+      .key(function (d) {
+        return d.Engine;
+      })
+      .entries(rawData);
+    data = rawData;
+    update("T2");
+  });
+
+  //update function
+  function update(selectedVar) {
+    // Parse the Data
+    data.forEach(d => d[selectedVar] = +d[selectedVar]);
+    // X axis
+    x.domain([0, d3.max(data.map(function (d) {
+      return +d.Time;
+    }))]);
+    xAxis.transition().duration(1000).call(d3.axisBottom(x));
+    // Add Y axis
+    y.domain([d3.min(data.map(d => d[selectedVar])) * 0.999, d3.max(data.map(d => d[selectedVar])) * 1.001]);
+    yAxis.transition().duration(1000).call(d3.axisLeft(y));
+    //console.log(selected_field);
+    let max_Engine =d3.max(data.map(function (d) {return +d.Engine;}))+1;
+    let color_band =[];
+    for (let i=1; i< max_Engine; i++){
+      color_band.push(i)
+    }
+    console.log(color_band);
+    let myColor = d3.scaleLinear()
+        .domain(color_band)
+        .range([0,1]);
+
+    console.log(myColor(10));
+
+    // Create a update selection: bind to the new data
+
+    var u = contentG.selectAll(".line")
+      .data(sumstat);
+
+    // Update the line
+    u
+      .enter()
+      .append("path")
+      .attr("class", "line")
+      .merge(u)
+      .transition()
+      .duration(1000)
+      .attr("d", function (d) {
+        return d3.line()
+          .x(function (d) {
+            return x(d.Time);
+          })
+          .y(function (d) {
+            return y(d[selectedVar]);
+          })
+          (d.values)
+      })
+      .attr("fill", "none")
+      .attr("stroke",d3.interpolateRdBu(myColor(d.Engine)))
+      .attr("stroke-width", 1);
+  }
+
+</script>
+</body>
