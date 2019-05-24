@@ -4,7 +4,6 @@
 
 .line {
   fill: none;
-  stroke-width: 2px;
 }
 
 #main {
@@ -32,7 +31,6 @@
 <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <div id="main">
-
   <!-- Create a div where the graph will take place -->
   <div id="my_dataviz"></div>
 
@@ -113,7 +111,7 @@
     xAxis.transition().duration(1000).call(d3.axisBottom(x));
     // Add Y axis
     y.domain([d3.min(data.map(d => d[selectedVar])) * 0.999, d3.max(data.map(d => d[selectedVar])) * 1.001]);
-    yAxis.transition().duration(1000).call(d3.axisLeft(y));
+    yAxis.transition().duration(500).call(d3.axisLeft(y));
     //console.log(selected_field);
     //let max_Engine =d3.max(data.map(function (d) {return +d.Engine;}))+1;
     //let color_band =[];
@@ -131,15 +129,41 @@
 
     var u = contentG.selectAll(".line")
       .data(sumstat);
+    const dot=svg.append("g")
+      .attr("display",false);
+
+    dot.append("text")
+      .style("font", "10px sans-serif")
+      .attr("text-anchor", "middle")
+      .attr("y", -8);
 
     // Update the line
     u
       .enter()
       .append("path")
-      .attr("class", "line")
+      .attr("class","line")
+      .attr("id", function (d) {
+        return d.Engine;
+      })
       .merge(u)
+
+
+      .on('mouseover', function (d) {
+        d3.selectAll(".line").attr("opacity", 0.1);
+        d3.select(this).attr("opacity", 1)
+          .style("stroke-width", 5);
+        dot.select("text").text(function (d) {
+          return  "Engine";
+        });
+        dot.attr("display", true)
+      })
+      .on('mouseout', function(d){
+        d3.select(this).style("stroke-width", 1.5);
+        d3.selectAll(".line").attr("opacity", 1);
+
+      })
       .transition()
-      .duration(1000)
+      .duration(500)
       .attr("d", function (d) {
         return d3.line()
           .x(function (d) {
@@ -152,7 +176,7 @@
       })
       .attr("fill", "none")
       .attr("stroke",function (d){ return color(+d.key%10)})
-      .attr("stroke-width", 1);
+      .attr("stroke-width", 1.5)
   }
 
 </script>
