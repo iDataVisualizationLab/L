@@ -4,7 +4,6 @@
 
 .line {
   fill: none;
-  stroke: steelblue;
   stroke-width: 2px;
 }
 
@@ -116,17 +115,17 @@
     y.domain([d3.min(data.map(d => d[selectedVar])) * 0.999, d3.max(data.map(d => d[selectedVar])) * 1.001]);
     yAxis.transition().duration(1000).call(d3.axisLeft(y));
     //console.log(selected_field);
-    let max_Engine =d3.max(data.map(function (d) {return +d.Engine;}))+1;
-    let color_band =[];
-    for (let i=1; i< max_Engine; i++){
-      color_band.push(i)
-    }
-    console.log(color_band);
-    let myColor = d3.scaleLinear()
-        .domain(color_band)
-        .range([0,1]);
-
-    console.log(myColor(10));
+    //let max_Engine =d3.max(data.map(function (d) {return +d.Engine;}))+1;
+    //let color_band =[];
+    //for (let i=1; i< max_Engine; i++){
+      //color_band.push(i)
+    //}
+    //console.log(color_band);
+    //let myColor = d3.scaleLinear()
+        //.domain(color_band)
+        //.range([0,1]);
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+    //console.log(myColor(10));
 
     // Create a update selection: bind to the new data
 
@@ -152,7 +151,7 @@
           (d.values)
       })
       .attr("fill", "none")
-      .attr("stroke",d3.interpolateRdBu(myColor(d.Engine)))
+      .attr("stroke",function (d){ return color(+d.key%10)})
       .attr("stroke-width", 1);
   }
 
