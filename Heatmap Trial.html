@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+
+  // set the dimensions and margins of the graph
+  var margin = {top: 30, right: 30, bottom: 30, left: 30},
+    width = 1500 - margin.left - margin.right,
+    height = 1000 - margin.top - margin.bottom;
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+
+  // Labels of row and columns
+  d3.csv("Dataset_full.csv", function (data) {
+
+    let max_Engine =d3.max(data.map(function (d) {return +d.Engine;}))+1;
+    let Engine_arr=[];
+    for (let i=1; i< max_Engine; i++){
+      Engine_arr.push(i)
+    }
+
+    // Build X scales and axis:
+    var x = d3.scaleBand()
+      .range([0,width])
+      .domain(Engine_arr)
+      .padding(0.01);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    let max_Time =d3.max(data.map(function (d) {return +d.Time;}))+1;
+    let Time_arr=[];
+    for (let i=1; i< max_Time; i++){
+      Time_arr.push(i)
+    }
+    console.log(Time_arr);
+
+    // Build X scales and axis:
+    var y = d3.scaleBand()
+      .range([ height, 0 ])
+      .domain(Time_arr);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Build color scale
+    var myColor = d3.scaleLinear()
+      .range(["white","lightblue","darkred"])
+      .domain([0,d3.min(data.map(function (d) {return d.NRc;})),d3.max(data.map(function(d) {return +d.NRc;}))]);
+
+    console.log(myColor);
+
+    //Read the data
+      svg.selectAll()
+        .data(data, function(d) {return d.Time+':'+d.Engine;})
+        .enter()
+        .append("rect")
+        .attr("x", function(d) { return x(d.Engine) })
+        .attr("y", function(d) { return y(d.Time) })
+        .attr("width", x.bandwidth() )
+        .attr("height", y.bandwidth() )
+        .style("fill", function(d) { return myColor(d.NRc)} )
+  });
+</script>
