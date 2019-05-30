@@ -90,7 +90,7 @@
   //Only need to read data once
   let data = null;
   let sumstat = null;
-  d3.csv("https://raw.githubusercontent.com/tbui001/Dataset_all/master/Dataset_full.csv", function (rawData) {
+  d3.csv("Dataset_full.csv", function (rawData) {
     sumstat = d3.nest()
       .key(function (d) {
         return d.Engine;
