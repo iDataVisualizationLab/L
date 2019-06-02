@@ -6,12 +6,15 @@
     font: 10px sans-serif;
   }
 
-  .label {
-    font-weight: bold;
-  }
-
-  .tile {
-    shape-rendering: crispEdges;
+  #heatmap_viz {
+    float:left;
+    width: 50%;
+    height: 95%;
+    margin: 0px 0px 0px 0.6%;
+    padding: 10px;
+    border-style: solid;
+    border-color: #000000;
+    overflow-y: scroll;
   }
 
   .axis path,
@@ -23,150 +26,108 @@
 
 </style>
 <body>
-  <script src="//d3js.org/d3.v4.min.js"></script>
-  <script>
+<script src="//d3js.org/d3.v4.min.js"></script>
+<div id="heatmap_viz"></div>
+<script>
 
-    var margin = {top: 20, right: 90, bottom: 30, left: 50},
-      width =840 - margin.left - margin.right,
-      height = 300 - margin.top - margin.bottom;
+  var margin = {top: 20, right: 90, bottom: 30, left: 50},
+    width =840 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
 
-    var x = d3.scaleLinear().range([0, width]),
-      y = d3.scaleLinear().range([height, 0]),
-      z = d3.scaleLinear().range(["lightblue","darkred"]);
+  var x = d3.scaleLinear().range([0, width]),
+    y = d3.scaleLinear().range([height, 0]),
+    z = d3.scaleLinear().range(["lightblue","darkred"]);
 
-    // The size of the buckets in the CSV data file.
-    // This could be inferred from the data if it weren't sparse.
-    const xStep = 1;
-    const yStep = 1;
+  // The size of the buckets in the CSV data file.
+  // This could be inferred from the data if it weren't sparse.
+  const xStep = 1;
+  const yStep = 1;
 
-    var svg = d3.select("body").append("svg")
+  d3.csv("https://raw.githubusercontent.com/iDataVisualizationLab/T/master/Dataset_full.csv", function (Rawdata) {
+
+    var svg = d3.select("#heatmap_viz").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    function Drawheatmap(data,svg) {
-      data.forEach(function (d) {
-        d.Time = +d.Time;
-        d.Engine = +d.Engine;
-        d.NRc = +d.NRc;
-      });
-
-      // Compute the scale domains.
-      x.domain(d3.extent(data.map(function (d) {
-        return d.Time;
-      })));
-      y.domain(d3.extent(data.map(function (d) {
-        return d.Engine;
-      })));
-      z.domain(d3.extent(data.map(function (d) {
-        return d.NRc;
-      })));
-
-      // Extend the x- and y-domain to fit the last bucket.
-      // For example, the y-bucket 3200 corresponds to values [3200, 3300].
-      x.domain([x.domain()[0], +x.domain()[1] + xStep]);
-      y.domain([y.domain()[0], y.domain()[1] + yStep]);
-
-      // Display the tiles for each non-zero bucket.
-      // See http://bl.ocks.org/3074470 for an alternative implementation.
-      svg.selectAll(".tile")
-        .data(data, function (d) {
-          return d.Time + ':' + d.Engine;
-        })
-        .enter().append("rect")
-        .attr("class", "tile")
-        .attr("x", function (d) {
-          return x(d.Time);
-        })
-        .attr("y", function (d) {
-          return y(d.Engine + yStep);
-        })
-        .attr("width", x(xStep) - x(0))
-        .attr("height", y(0) - y(yStep))
-        .attr("stroke", "black")
-        .attr("stroke-width", 0.3)
-        .style("fill", function (d) {
-          return z(d.NRc);
-        });
-
-      // Add a legend for the color values.
-      var legend = svg.selectAll(".legend")
-        .data(z.ticks(6).slice(1).reverse())
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function (d, i) {
-          return "translate(" + (width + 20) + "," + (20 + i * 20) + ")";
-        });
-
-      legend.append("rect")
-        .attr("width", 20)
-        .attr("height", 20)
-        .style("fill", z);
-
-      //legend.append("text")
-      //.attr("x", 26)
-      //.attr("y", 10)
-      //.attr("dy", ".35em")
-      //.text(String);
-
-      //svg.append("text")
-      //.attr("class", "label")
-      //.attr("x", width + 20)
-      //.attr("y", 10)
-      //.attr("dy", ".35em")
-      //.text("rpm");
-
-      // Add an x-axis with label.
-      svg.append("g")
-        .attr("class", "x axis")
-        //.attr("transform", "translate(0," + height + ")")
-        .call(d3.axisTop(x))
-        .append("text")
-        .attr("transform",
-          "translate(" + (width / 2) + ")")
-        .style("text-anchor", "middle")
-        .text("Date");
-
-
-      // Add a y-axis with label.
-      svg.append("g")
-        .attr("class", "y axis")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (height / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Engine");
+    let data=Rawdata;
+    let sensors = [];
+    for (var prop in data[0]) {
+      if (data[0].hasOwnProperty(prop)) {
+        if (prop != 'Time' && prop != 'Engine') {
+          sensors.push(prop);
+        }
+      }
     }
-    let groupg=svg.selectAll("g.group").data(["https://raw.githubusercontent.com/iDataVisualizationLab/T/master/Dataset_full.csv","https://raw.githubusercontent.com/iDataVisualizationLab/T/master/Dataset_full.csv"]);
-    groupg.exit().remove();
-    groupg.enter().append("g").attr("class","group")
-      .attr("transform",(d,i)=>"translate(0,"+(i*height+50)+")").each(function (d) {
-      Readdata(d,d3.select(this))
+    let sensorcount = sensors.length;
+    for(let i = 0; i < sensorcount; i++){
+
+      let selectedVar = sensors[i];
+      let contentG = svg.append("g").attr("transform","translate(0,"+(i*350)+")");
+      Drawheatmap(data, contentG,selectedVar);
+    // }
+
+
+
+      // Coerce the CSV data to the appropriate types.
+
     });
 
-    function Readdata(filename,svg) {
-      d3.csv(filename, function (data) {
+  function Drawheatmap(data,svg,selectedVar) {
+    data.forEach(function (d) {
+      d.Time = +d.Time;
+      d.Engine = +d.Engine;
+      d[selectedVar] = +d[selectedVar];
+    });
 
-        let sensors = [];
-        for (var prop in data[0]) {
-          if (data[0].hasOwnProperty(prop)) {
-            if (prop != 'Time' && prop != 'Engine') {
-              sensors.push(prop);
-            }
-          }
-        }
+    // Compute the scale domains.
+    x.domain(d3.extent(data.map(function (d) {
+      return d.Time;
+    })));
+    y.domain(d3.extent(data.map(function (d) {
+      return d.Engine;
+    })));
+    z.domain(d3.extent(data.map(function (d) {
+      return d[selectedVar];
+    })));
 
+    // Extend the x- and y-domain to fit the last bucket.
+    // For example, the y-bucket 3200 corresponds to values [3200, 3300].
+    x.domain([x.domain()[0], +x.domain()[1] + xStep]);
+    y.domain([y.domain()[0], y.domain()[1] + yStep]);
 
-        // Coerce the CSV data to the appropriate types.
-        Drawheatmap(data, svg);
+    // Display the tiles for each non-zero bucket.
+    // See http://bl.ocks.org/3074470 for an alternative implementation.
+    svg.selectAll(".tile")
+      .data(data, function (d) {
+        return d.Time + ':' + d.Engine;
+      })
+      .enter().append("rect")
+      .attr("class", "tile")
+      .attr("x", function (d) {
+        return x(d.Time);
+      })
+      .attr("y", function (d) {
+        return y(d.Engine + yStep);
+      })
+      .attr("width", x(xStep) - x(0))
+      .attr("height", y(0) - y(yStep))
+      .attr("stroke", "black")
+      .attr("stroke-width", 0.3)
+      .style("fill", function (d) {
+        return z(d[selectedVar]);
       });
-    }
 
-    Readdata();
+    // Add an x-axis with label.
+    svg.append("g")
+      .attr("class", "x axis")
+      //.attr("transform", "translate(0," + height + ")")
+      .call(d3.axisTop(x))
+      .append("text")
+      .attr("transform",
+        "translate(" + (width / 2) + ")");
+  }
 
-  </script>
+
+</script>
 </body>
