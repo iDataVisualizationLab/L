@@ -2,9 +2,6 @@
 <meta charset="utf-8">
 <style> /* set the CSS */
 
-.line {
-  fill: none;
-}
 
 #main {
   display: flex;
@@ -14,13 +11,6 @@
   flex: 1;
 }
 
-.btn-group {
-  width: 200px;
-}
-
-.btn-group button {
-  display: block;
-}
 
 </style>
 <body>
@@ -30,38 +20,41 @@
 <script src="https://d3js.org/d3-color.v1.min.js"></script>
 <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
 <div id="main">
   <!-- Create a div where the graph will take place -->
   <div id="my_dataviz"></div>
 
   <!-- Add buttons -->
-  <div class="btn-group">
-
-    <button onclick="update('T2')">Total temp at fan inlet</button>
-    <button onclick="update('T24')">Total temp at LPC outlet</button>
-    <button onclick="update('T30')">Total temp at HPC outlet</button>
-    <button onclick="update('T50')">Total temp at LPT outlet</button>
-    <button onclick="update('P2')">Pressure at fan inlet</button>
-    <button onclick="update('P15')">Total pressure in bypass-duct</button>
-    <button onclick="update('P30')">Total pressure at HPC outlet</button>
-    <button onclick="update('Nf')">Physical fan speed</button>
-    <button onclick="update('Nc')">Physical core speed</button>
-    <button onclick="update('epr')">Engine pressure ratio</button>
-    <button onclick="update('Ps30')">Static pressure at HPC outlet</button>
-    <button onclick="update('phi')">Ratio of fuel flow to Ps30</button>
-    <button onclick="update('NRf')">Corrected fan speed</button>
-    <button onclick="update('NRc')">Corrected core speed</button>
-    <button onclick="update('BPR')">Bypass ratio</button>
-    <button onclick="update('farB')">Burner fuel-air ratio</button>
-    <button onclick="update('htBleed')">Bleed Enthalpy</button>
-    <button onclick="update('Nf_dmd')">Demanded fan speed</button>
-    <button onclick="update('PCNfR_dmd')">Demanded corrected fan speed</button>
-    <button onclick="update('W31')">HPT coolant bleed</button>
-    <button onclick="update('W32')">LPT coolant bleed</button>
-
+  <div class="variable">
+    <span class="setting-label">Variable Selection:</span>
+    <select id="variableType" onchange="update()">
+      <option value="T2">Total temp at fan inlet</option>
+      <option value="T24">Total temp at LPC outlet</option>
+      <option value="T30">Total temp at HPC outlet</option>
+      <option value="T50">Total temp at LPT outlet</option>
+      <option value="P2">Pressure at fan inlet</option>
+      <option value="P15">Total pressure in bypass-duct</option>
+      <option value="P30">Total pressure at HPC outlet</option>
+      <option value="Nf">Physical fan speed</option>
+      <option value="Nc">Physical core speed</option>
+      <option value="epr">Engine pressure ratio</option>
+      <option value="Ps30" selected>Static pressure at HPC outlet</option>
+      <option value="phi">Ratio of fuel flow to Ps30</option>
+      <option value="NRf">Corrected fan speed</option>
+      <option value="NRc">Corrected core speed</option>
+      <option value="BPR">Bypass ratio</option>
+      <option value="farB">Burner fuel-air ratio</option>
+      <option value="htBleed">Bleed Enthalpy</option>
+      <option value="Nf_dmd">Demanded fan speed</option>
+      <option value="PCNfR_dmd">Demanded corrected fan speed</option>
+      <option value="W31">HPT coolant bleed</option>
+      <option value="W32">LPT coolant bleed</option>
+    </select>
   </div>
 
 </div>
+
 <script>
   // set the dimensions and margins of the graph
   var margin = {top: 30, right: 30, bottom: 70, left: 60},
@@ -76,7 +69,7 @@
     .append("g")
     .attr("transform",
       "translate(" + margin.left + "," + margin.top + ")");
-  let contentG = svg.append("g").attr("transform", `translate(0, 0)`);
+  let contentG = svg.append("g").attr("transform", "translate(0, 0)");
 
   // set the ranges
   var x = d3.scaleLinear().range([0, width]);
@@ -97,11 +90,13 @@
       })
       .entries(rawData);
     data = rawData;
-    update("T2");
+    update("Ps30");
   });
 
+
   //update function
-  function update(selectedVar) {
+  function update() {
+    var selectedVar =document.getElementById("variableType").value;
     // Parse the Data
     data.forEach(d => d[selectedVar] = +d[selectedVar]);
     // X axis
@@ -112,54 +107,42 @@
     // Add Y axis
     y.domain([d3.min(data.map(d => d[selectedVar])) * 0.999, d3.max(data.map(d => d[selectedVar])) * 1.001]);
     yAxis.transition().duration(500).call(d3.axisLeft(y));
-    //console.log(selected_field);
-    //let max_Engine =d3.max(data.map(function (d) {return +d.Engine;}))+1;
-    //let color_band =[];
-    //for (let i=1; i< max_Engine; i++){
-      //color_band.push(i)
-    //}
-    //console.log(color_band);
-    //let myColor = d3.scaleLinear()
-        //.domain(color_band)
-        //.range([0,1]);
+
     var color = d3.scaleOrdinal(d3.schemeCategory10);
-    //console.log(myColor(10));
 
     // Create a update selection: bind to the new data
 
     var u = contentG.selectAll(".line")
       .data(sumstat);
-    const dot=svg.append("g")
-      .attr("display",false);
 
-    dot.append("text")
-      .style("font", "10px sans-serif")
-      .attr("text-anchor", "middle")
-      .attr("y", -8);
+
+    var Tooltip = d3.select("#my_dataviz")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "white");
 
     // Update the line
     u
       .enter()
       .append("path")
       .attr("class","line")
-      .attr("id", function (d) {
-        return d.Engine;
-      })
       .merge(u)
 
 
-      .on('mouseover', function (d) {
+      .on('mouseover', function () {
         d3.selectAll(".line").attr("opacity", 0.1);
         d3.select(this).attr("opacity", 1)
           .style("stroke-width", 5);
-        dot.select("text").text(function (d) {
-          return  "Engine";
-        });
-        dot.attr("display", true)
+        Tooltip.style("opacity",1)
+          .html("This is engine number ", function (d) {
+            return d.key;
+          })
       })
-      .on('mouseout', function(d){
-        d3.select(this).style("stroke-width", 1.5);
+      .on('mouseout', function(){
+        d3.select(this).style("stroke-width", 1);
         d3.selectAll(".line").attr("opacity", 1);
+        Tooltip.style("opacity",0)
 
       })
       .transition()
@@ -176,7 +159,7 @@
       })
       .attr("fill", "none")
       .attr("stroke",function (d){ return color(+d.key%10)})
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 1)
   }
 
 </script>
