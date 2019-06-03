@@ -6,24 +6,24 @@
     font: 10px sans-serif;
   }
   #main {
-    display: flex;
+    /*display: flex;*/
   }
 
   #my_dataviz {
     float:left;
     width: 40%;
     height: 95%;
-    margin: 0px 0px 0px 0.6%;
+    margin: 0px 0px 0px 0px;
     padding: 10px;
     border-style: solid;
     border-color: #000000;
     overflow-y: scroll;
-    flex: 1
+    /*flex: 1*/
   }
   #my_dataviz {
     float:right;
     width: 60%;
-    flex: 1;
+    /*flex: 1;*/
   }
   .axis path,
   .axis line {
@@ -88,7 +88,7 @@
     var svg = d3.select("#my_dataviz").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-      .attr("transform", "translate(0," + (i*height) + ")")
+      // .attr("transform", "translate(0," + (i*height+20) + ")")
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -139,13 +139,16 @@
       });
 
     // Add an x-axis with label.
-    svg.append("g")
-      .attr("class", "x axis")
-      //.attr("transform", "translate(0," + height + ")")
-      .call(d3.axisTop(x))
-      .append("text")
-      .attr("transform",
-        "translate(" + (width / 2) + ")");
+    if (i==0){
+      svg.append("g")
+        .attr("class", "x axis")
+        //.attr("transform", "translate(0," + height + ")")
+        .call(d3.axisTop(x))
+        .append("text")
+        .attr("transform",
+          "translate(" + (width / 2) + ")");
+    }
+
   }
 
 
