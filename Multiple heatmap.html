@@ -5,18 +5,26 @@
   body {
     font: 10px sans-serif;
   }
+  #main {
+    display: flex;
+  }
 
-  #heatmap_viz {
+  #my_dataviz {
     float:left;
-    width: 50%;
+    width: 40%;
     height: 95%;
     margin: 0px 0px 0px 0.6%;
     padding: 10px;
     border-style: solid;
     border-color: #000000;
     overflow-y: scroll;
+    flex: 1
   }
-
+  #my_dataviz {
+    float:right;
+    width: 60%;
+    flex: 1;
+  }
   .axis path,
   .axis line {
     fill: none;
@@ -27,12 +35,18 @@
 </style>
 <body>
 <script src="//d3js.org/d3.v4.min.js"></script>
-<div id="heatmap_viz"></div>
+<div id="main">
+  <!-- Create a div where the graph will take place -->
+  <div id="my_dataviz"></div>
+
+  <div id="Control_panel"></div>
+
+</div>
 <script>
 
   var margin = {top: 20, right: 90, bottom: 30, left: 50},
-    width =840 - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
+    width = 800 - margin.left - margin.right,
+    height = 445 - margin.top - margin.bottom;
 
   var x = d3.scaleLinear().range([0, width]),
     y = d3.scaleLinear().range([height, 0]),
@@ -43,15 +57,13 @@
   const xStep = 1;
   const yStep = 1;
 
+  let sensors = [];
+  let data = [];
   d3.csv("https://raw.githubusercontent.com/iDataVisualizationLab/T/master/Dataset_full.csv", function (Rawdata) {
 
-    var svg = d3.select("#heatmap_viz").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    let data=Rawdata;
-    let sensors = [];
+    data=Rawdata;
+
+
     for (var prop in data[0]) {
       if (data[0].hasOwnProperty(prop)) {
         if (prop != 'Time' && prop != 'Engine') {
@@ -62,18 +74,26 @@
     let sensorcount = sensors.length;
     for(let i = 0; i < sensorcount; i++){
 
-      let selectedVar = sensors[i];
-      let contentG = svg.append("g").attr("transform","translate(0,"+(i*350)+")");
-      Drawheatmap(data, contentG,selectedVar);
-    // }
+      Drawheatmap(i);
+    }
 
 
 
-      // Coerce the CSV data to the appropriate types.
+    // Coerce the CSV data to the appropriate types.
 
-    });
+  });
 
-  function Drawheatmap(data,svg,selectedVar) {
+  function Drawheatmap(i) {
+
+    var svg = d3.select("#my_dataviz").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("transform", "translate(0," + (i*height) + ")")
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    let selectedVar = sensors[i];
+
     data.forEach(function (d) {
       d.Time = +d.Time;
       d.Engine = +d.Engine;
