@@ -9,20 +9,31 @@
     /*display: flex;*/
   }
 
-  #my_dataviz {
+  #header{
     float:left;
-    width: 40%;
+    width: 50%;
     height: 95%;
     margin: 0px 0px 0px 0px;
-    padding: 10px;
-    border-style: solid;
-    border-color: #000000;
-    overflow-y: scroll;
-    /*flex: 1*/
+    padding: 5px;
+    /*border-style: solid;*/
+    /*border-color: #000000;*/
+    overflow: hidden;
   }
   #my_dataviz {
+    float:left;
+    width: 50%;
+    height: 95%;
+    margin: 0px 0px 0px 0px;
+    padding: 5px;
+    /*border-style: solid;*/
+    /*border-color: #000000;*/
+    overflow: auto;
+    /*flex: 1*/
+  }
+  #Control_panel {
     float:right;
-    width: 60%;
+    width: 50%;
+    overflow: hidden;
     /*flex: 1;*/
   }
   .axis path,
@@ -37,6 +48,8 @@
 <script src="//d3js.org/d3.v4.min.js"></script>
 <div id="main">
   <!-- Create a div where the graph will take place -->
+  <div id="header"></div>
+
   <div id="my_dataviz"></div>
 
   <div id="Control_panel"></div>
@@ -44,22 +57,26 @@
 </div>
 <script>
 
-  var margin = {top: 20, right: 90, bottom: 30, left: 50},
-    width = 800 - margin.left - margin.right,
+  var margin = {top: 0, right: 0, bottom: 0, left: 0},
+    width = 1200 + margin.left + margin.right,
     height = 445 - margin.top - margin.bottom;
 
-  var x = d3.scaleLinear().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]),
-    z = d3.scaleLinear().range(["lightblue","darkred"]);
+  var x = d3.scaleLinear().range([0, width-50]),
+    y = d3.scaleLinear().range([0, height-5]),
+    z = d3.scaleLinear().range(["lightgreen","darkred"]);
 
   // The size of the buckets in the CSV data file.
   // This could be inferred from the data if it weren't sparse.
-  const xStep = 1;
-  const yStep = 1;
+  let axis_svg = d3.select("#header").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", 50)
+    // .attr("transform", "translate(0," + (i*height+20) + ")")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + 40 + ")");
 
   let sensors = [];
   let data = [];
-  d3.csv("https://raw.githubusercontent.com/iDataVisualizationLab/T/master/Dataset_full.csv", function (Rawdata) {
+  d3.csv("Data_cleaned.csv", function (Rawdata) {
 
     data=Rawdata;
 
@@ -113,8 +130,8 @@
 
     // Extend the x- and y-domain to fit the last bucket.
     // For example, the y-bucket 3200 corresponds to values [3200, 3300].
-    x.domain([x.domain()[0], +x.domain()[1] + xStep]);
-    y.domain([y.domain()[0], y.domain()[1] + yStep]);
+    // x.domain([x.domain()[0], +x.domain()[1] + xStep]);
+    // y.domain([y.domain()[0], y.domain()[1] + yStep]);
 
     // Display the tiles for each non-zero bucket.
     // See http://bl.ocks.org/3074470 for an alternative implementation.
@@ -128,10 +145,10 @@
         return x(d.Time);
       })
       .attr("y", function (d) {
-        return y(d.Engine + yStep);
+        return y(d.Engine);
       })
-      .attr("width", x(xStep) - x(0))
-      .attr("height", y(0) - y(yStep))
+      .attr("width", width/(d3.max(data.map(function (d) {return d.Time;}))))
+      .attr("height", height/(d3.max(data.map(function (d) {return d.Engine;}))))
       .attr("stroke", "black")
       .attr("stroke-width", 0.3)
       .style("fill", function (d) {
@@ -139,11 +156,11 @@
       });
 
     // Add an x-axis with label.
-    if (i==0){
-      svg.append("g")
+    if (i == 0){
+      axis_svg.append("g")
         .attr("class", "x axis")
-        //.attr("transform", "translate(0," + height + ")")
-        .call(d3.axisTop(x))
+        // .attr("transform", "translate(0," - 20 + ")")
+        .call(d3.axisTop(x).ticks(15))
         .append("text")
         .attr("transform",
           "translate(" + (width / 2) + ")");
