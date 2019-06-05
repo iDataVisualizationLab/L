@@ -46,128 +46,129 @@
 </style>
 <body>
 <script src="//d3js.org/d3.v4.min.js"></script>
-<div id="main">
-  <!-- Create a div where the graph will take place -->
-  <div id="header"></div>
-
-  <div id="my_dataviz"></div>
-
-  <div id="Control_panel"></div>
-
-</div>
-<script>
-
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = 1200 + margin.left + margin.right,
-    height = 445 - margin.top - margin.bottom;
-
-  var x = d3.scaleLinear().range([0, width-50]),
-    y = d3.scaleLinear().range([0, height-5]),
-    z = d3.scaleLinear().range(["lightgreen","darkred"]);
-
-  // The size of the buckets in the CSV data file.
-  // This could be inferred from the data if it weren't sparse.
-  let axis_svg = d3.select("#header").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", 50)
-    // .attr("transform", "translate(0," + (i*height+20) + ")")
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + 40 + ")");
-
-  let sensors = [];
-  let data = [];
-  d3.csv("https://raw.githubusercontent.com/iDataVisualizationLab/T/master/Data_cleaned.csv", function (Rawdata) {
-
-    data=Rawdata;
-
-
-    for (var prop in data[0]) {
-      if (data[0].hasOwnProperty(prop)) {
-        if (prop != 'Time' && prop != 'Engine') {
-          sensors.push(prop);
-        }
-      }
-    }
-    let sensorcount = sensors.length;
-    for(let i = 0; i < sensorcount; i++){
-
-      Drawheatmap(i);
-    }
-
-
-
-    // Coerce the CSV data to the appropriate types.
-
-  });
-
-  function Drawheatmap(i) {
-
-    var svg = d3.select("#my_dataviz").append("svg")
+  <div id="main">
+    <!-- Create a div where the graph will take place -->
+    <div id="header"></div>
+  
+    <div id="my_dataviz"></div>
+  
+    <div id="Control_panel"></div>
+  
+  </div>
+  <script>
+  
+    var margin = {top: 0, right: 0, bottom: 0, left: 0},
+      width = 1200 + margin.left + margin.right,
+      height = 445 - margin.top - margin.bottom;
+  
+    var x = d3.scaleLinear().range([0, width-50]),
+      y = d3.scaleLinear().range([0, height-5]),
+      z = d3.scaleLinear().range(["lightgreen","darkred"]);
+  
+    // The size of the buckets in the CSV data file.
+    // This could be inferred from the data if it weren't sparse.
+    let axis_svg = d3.select("#header").append("svg")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("height", 50)
       // .attr("transform", "translate(0," + (i*height+20) + ")")
       .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    let selectedVar = sensors[i];
-
-    data.forEach(function (d) {
-      d.Time = +d.Time;
-      d.Engine = +d.Engine;
-      d[selectedVar] = +d[selectedVar];
+      .attr("transform", "translate(" + 3 + "," + 40 + ")");
+  
+    let sensors = [];
+    let data = [];
+    d3.csv("Data_cleaned.csv", function (Rawdata) {
+  
+      data=Rawdata;
+  
+  
+      for (var prop in data[0]) {
+        if (data[0].hasOwnProperty(prop)) {
+          if (prop != 'Time' && prop != 'Engine') {
+            sensors.push(prop);
+          }
+        }
+      }
+      let sensorcount = sensors.length;
+      for(let i = 0; i < sensorcount; i++){
+  
+        Drawheatmap(i);
+      }
+  
+  
+  
+      // Coerce the CSV data to the appropriate types.
+  
     });
-
-    // Compute the scale domains.
-    x.domain(d3.extent(data.map(function (d) {
-      return d.Time;
-    })));
-    y.domain(d3.extent(data.map(function (d) {
-      return d.Engine;
-    })));
-    z.domain(d3.extent(data.map(function (d) {
-      return d[selectedVar];
-    })));
-
-    // Extend the x- and y-domain to fit the last bucket.
-    // For example, the y-bucket 3200 corresponds to values [3200, 3300].
-    // x.domain([x.domain()[0], +x.domain()[1] + xStep]);
-    // y.domain([y.domain()[0], y.domain()[1] + yStep]);
-
-    // Display the tiles for each non-zero bucket.
-    // See http://bl.ocks.org/3074470 for an alternative implementation.
-    svg.selectAll(".tile")
-      .data(data, function (d) {
-        return d.Time + ':' + d.Engine;
-      })
-      .enter().append("rect")
-      .attr("class", "tile")
-      .attr("x", function (d) {
-        return x(d.Time);
-      })
-      .attr("y", function (d) {
-        return y(d.Engine);
-      })
-      .attr("width", width/(d3.max(data.map(function (d) {return d.Time;}))))
-      .attr("height", height/(d3.max(data.map(function (d) {return d.Engine;}))))
-      .attr("stroke", "black")
-      .attr("stroke-width", 0.3)
-      .style("fill", function (d) {
-        return z(d[selectedVar]);
+  
+    function Drawheatmap(i) {
+  
+      var svg = d3.select("#my_dataviz").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        // .attr("transform", "translate(0," + (i*height+20) + ")")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+      let selectedVar = sensors[i];
+  
+      data.forEach(function (d) {
+        d.Time = +d.Time;
+        d.Engine = +d.Engine;
+        d[selectedVar] = +d[selectedVar];
       });
-
-    // Add an x-axis with label.
-    if (i == 0){
-      axis_svg.append("g")
-        .attr("class", "x axis")
-        // .attr("transform", "translate(0," - 20 + ")")
-        .call(d3.axisTop(x).ticks(15))
-        .append("text")
-        .attr("transform",
-          "translate(" + (width / 2) + ")");
+  
+      // Compute the scale domains.
+      x.domain(d3.extent(data.map(function (d) {
+        return d.Time;
+      }))).nice();
+      y.domain(d3.extent(data.map(function (d) {
+        return d.Engine;
+      })));
+      z.domain(d3.extent(data.map(function (d) {
+        return d[selectedVar];
+      })));
+  
+      // Extend the x- and y-domain to fit the last bucket.
+      // For example, the y-bucket 3200 corresponds to values [3200, 3300].
+      // x.domain([x.domain()[0], +x.domain()[1] + xStep]);
+      // y.domain([y.domain()[0], y.domain()[1] + yStep]);
+  
+      // Display the tiles for each non-zero bucket.
+      // See http://bl.ocks.org/3074470 for an alternative implementation.
+      svg.selectAll(".tile")
+        .data(data, function (d) {
+          return d.Time + ':' + d.Engine;
+        })
+        .enter().append("rect")
+        .attr("class", "tile")
+        .attr("x", function (d) {
+          return x(d.Time);
+        })
+        .attr("y", function (d) {
+          return y(d.Engine);
+        })
+        .attr("width", width/(d3.max(data.map(function (d) {return d.Time;}))))
+        .attr("height", height/(d3.max(data.map(function (d) {return d.Engine;}))))
+        .attr("stroke", "black")
+        .attr("stroke-width", 0.3)
+        .style("fill", function (d) {
+          return z(d[selectedVar]);
+        });
+        // let x_max = (d3.max(data.map(function (d) {return d.Time;})));
+      // Add an x-axis with label.
+      if (i == 0){
+        axis_svg.append("g")
+          .attr("class", "x axis")
+          // .attr("transform", "translate(0," - 20 + ")")
+          .call(d3.axisTop(x).ticks(20))
+          .append("text")
+          .attr("transform",
+            "translate(" + (width / 2) + ")");
+        // console.log(x_max)
+      }
+  
     }
-
-  }
-
-
-</script>
+  
+  
+  </script>
 </body>
