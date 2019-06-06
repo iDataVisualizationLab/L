@@ -8,33 +8,40 @@
   #main {
     /*display: flex;*/
   }
+  #Graph_chart{
+  float:left;
+    width: 50%;
+    height: 95%;
+    margin-bottom: 20px;
+  }
 
   #header{
     float:left;
-    width: 50%;
+    width: 100%;
     height: 95%;
-    margin: 0px 0px 0px 0px;
-    padding: 5px;
-    /*border-style: solid;*/
-    /*border-color: #000000;*/
     overflow: hidden;
   }
   #my_dataviz {
     float:left;
-    width: 50%;
+    width: 100%;
     height: 95%;
-    margin: 0px 0px 0px 0px;
-    padding: 5px;
-    /*border-style: solid;*/
-    /*border-color: #000000;*/
     overflow: auto;
-    /*flex: 1*/
   }
   #Control_panel {
     float:right;
     width: 50%;
     overflow: hidden;
-    /*flex: 1;*/
+    position: relative;
+  }
+  #Guide_box{
+  }
+  #Legend_area{
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  #Interactive_chart{
+  }
+  #Predicting_RUL{
   }
   .axis path,
   .axis line {
@@ -48,11 +55,24 @@
 <script src="//d3js.org/d3.v4.min.js"></script>
   <div id="main">
     <!-- Create a div where the graph will take place -->
-    <div id="header"></div>
+    <div id="Graph_chart">
+      <div id="header"></div>
+      <div id="my_dataviz"></div>
+    </div>
 
-    <div id="my_dataviz"></div>
+    <div id="Control_panel">
+      <div id="Guide_box">
+        <span class="setting-label">View by:</span>
+        <select id="View_by">
+          <option>Sensors</option>
+          <option>Engine</option>
+        </select>
+        <div id="Legend_area"></div>
+      </div>
 
-    <div id="Control_panel"></div>
+      <div id="Interactive_chart"></div>
+      <div id="Predicting_RUL"></div>
+    </div>
 
   </div>
   <script>
@@ -61,10 +81,12 @@
       width = 1200 + margin.left + margin.right,
       height = 445 - margin.top - margin.bottom;
 
+    const color=["#9dbee6", "#afcae6", "#c8dce6", "#e6e6e6", "#e6e6d8", "#e6d49c", "#e6b061", "#e6852f", "#e6531a", "#e61e1a"];
+
     var x = d3.scaleLinear().range([0, width-150]),
       y = d3.scaleLinear().range([0, height-15]),
       z =d3.scaleLinear().domain([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-        .range(["#9dbee6", "#afcae6", "#c8dce6", "#e6e6e6", "#e6e6d8", "#e6d49c", "#e6b061", "#e6852f", "#e6531a", "#e61e1a"]).interpolate(d3.interpolateHsl);
+        .range(color).interpolate(d3.interpolateHsl);
 
 
     var tooltip = d3.select("#my_dataviz")
@@ -87,6 +109,28 @@
       // .attr("transform", "translate(0," + (i*height+20) + ")")
       .append("g")
       .attr("transform", "translate(" + 3 + "," + 30 + ")");
+
+    let legend_svg = d3.select("#Legend_area").append("svg")
+      .attr("width",300)
+      .attr("height", 40)
+      .attr("transform", "translate(50,0)")
+      .append("g");
+
+    for (let j = 0; j<10;j++){
+      legend_svg.append("rect")
+        .attr("width", 20)
+        .attr("height", 20)
+        .attr("transform", "translate(" + (j*20) + ",0)")
+        .attr("stroke","black")
+        .attr("stroke-width",0.1)
+        .attr("fill",color[j])
+
+        .append("text")
+        .attr("class", "mono")
+        .text(((j+1)*10) +"th")
+        .attr("x", (10))
+        .attr("y", 20);
+    }
 
     let sensors = [];
     let data = [];
@@ -150,7 +194,7 @@
       // For example, the y-bucket 3200 corresponds to values [3200, 3300].
       // x.domain([x.domain()[0], +x.domain()[1] + xStep]);
       // y.domain([y.domain()[0], y.domain()[1] + yStep]);
-      var mouseover = function(d) {
+      var mouseover = function() {
         tooltip
           .style("opacity", 1)
       };
@@ -160,9 +204,9 @@
             "Cycle " + d.Time + "<br/>" +
             selectedVar + " "+ d[selectedVar])
           .style("left", (d3.event.pageX) + 20 + "px")
-          .style("top", (d3.event.pageY - 70) + "px")
+          .style("top", (d3.event.pageY - 20) + "px")
       };
-      var mouseleave = function(d) {
+      var mouseleave = function() {
         tooltip
           .style("opacity", 0)
       };
