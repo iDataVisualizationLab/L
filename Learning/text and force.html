@@ -1,7 +1,7 @@
 <html>
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
 
     <!--    <script src="sketch.js"></script>-->
 </head>
@@ -21,7 +21,7 @@
         birch = loadFont('BirchStd.otf');
     }
 
-var mypoints
+    var mypoints
 
     function setup() {
         // createCanvas(windowWidth, windowHeight);
@@ -32,27 +32,56 @@ var mypoints
         points = birch.textToPoints(word, x, y, size);
         mypoints = points
         console.log(points.length)
+        nodes = Array.apply(null, Array(points.length)).map(function (_, i) {
+
+            return {
+                x: points[i].x,
+                y: points[i].y,
+            }
+        })
+
+
+
+
+        console.log(nodes)
+        var force = d3.layout.force()
+            .nodes(nodes)
+            .size([width, height])
+
+        force.linkDistance(width/3.5);
+
 
         let b =  d3.select('svg');
 
         b.selectAll('rect').data(mypoints).enter().append('rect').attr('x', d => d.x).attr('y', d => d.y).attr('width', 3).attr('height', 3).style('fill', 'red')
+        var node = b.selectAll('.node')
+            .data(nodes)
+            .enter().append('rect')
+            .attr('class', 'node')
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; })
+            .attr('width', 3)
+            .attr('height', 3)
+            .style('fill','red');
         b.on("mouseover", function (e) {
-            t = d3.mouse(this)
-            o = 25, l = 7, h = Math.round(o + 3.5 * l), v = Math.round(o + 2 * l)
-            d3.select('svg').selectAll('rect').attr('x', function (d) {
-                return d.x + 0.1*(Math.random()*t[0] +o)
-
-            }).attr('y', function (d) {
-                return d.y + 0.1*(Math.random()*t[1] +l)
-            })
+            // t = d3.mouse(this)
+            // o = 25, l = 7, h = Math.round(o + 3.5 * l), v = Math.round(o + 2 * l)
+            // d3.select('svg').selectAll('rect').attr('x', function (d) {
+            //     return d.x + 0.1*(Math.random()*t[0] +o)
+            //
+            // }).attr('y', function (d) {
+            //     return d.y + 0.1*(Math.random()*t[1] +l)
+            // })
+            force.start()
         });
         b.on("mouseleave", function () {
-            d3.select('svg').selectAll('rect').attr('x', function (d) {
-                return d.x
-
-            }).attr('y', function (d) {
-                return d.y
-            })
+            // d3.select('svg').selectAll('rect').attr('x', function (d) {
+            //     return d.x
+            //
+            // }).attr('y', function (d) {
+            //     return d.y
+            // })
+            force.stop()
         });
     }
     //
