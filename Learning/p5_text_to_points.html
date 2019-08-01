@@ -1,0 +1,80 @@
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.js"></script>
+
+    <!--    <script src="sketch.js"></script>-->
+</head>
+<body>
+<svg width="100%" height="100%">
+
+</svg>
+<script>
+    let birch;
+    let points;
+    let word = "idVL";
+    let x;
+    let y;
+    let size = 220;
+
+    function preload(){
+        birch = loadFont('BirchStd.otf');
+    }
+
+var mypoints
+
+    function setup() {
+        createCanvas(windowWidth, windowHeight);
+        x = width/2 - 130;
+        y = height/2;
+        points = birch.textToPoints(word, x, y, size);
+        mypoints = points
+        console.log(points)
+        noStroke();
+        fill(0);
+        update_points();
+    }
+    //
+    // function draw() {
+    //     background(220);
+    //
+    //     textFont(birch);
+    //     textSize(size);
+    //     fill(220);
+    //     // text(word, x, y);
+    //
+    //     for(let i = 0; i < points.length; i++){
+    //
+    //         let c = noise(i + frameCount * 0.01 ) * 255;
+    //         fill(50, 50,50);
+    //
+    //         let pt = points[i];
+    //
+    //         let nx = 0.1 * noise(i * 10.1 + frameCount * 0.01) * 10 - 5.0;
+    //         let ny = 0.1 * noise(i * 10.2 + frameCount * 0.01) * 10 - 5.0;
+    //
+    //         // pt.x += noise(i * 10.1 + frameCount * 0.01) * 2 - 1.0;
+    //         // pt.y += noise(i * 10.2 + frameCount * 0.01) * 2 - 1.0;
+    //
+    //         ellipse(pt.x + nx, pt.y + ny, 3);
+    //     }
+    //
+    // }
+
+    function update_points() {
+        x_cord = [], y_cord = []
+        for (var i = 0; i < mypoints.length; i++) {
+            x_cord[i] = mypoints[i].x
+        }
+        for (var i = 0; i < mypoints.length; i++) {
+            y_cord[i] = mypoints[i].y
+        }
+        d3.select('svg').selectAll('rect').data(mypoints).enter()
+            .append('rect').attr('x', d => d.x).attr('y', d => d.y).attr('width', 3).attr('height', 3).style('fill', 'red')
+    }
+
+
+
+</script>
+</body>
+</html>
