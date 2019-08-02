@@ -44,16 +44,15 @@
 
 
         console.log(nodes)
+
+
         var force = d3.layout.force()
             .nodes(nodes)
             .size([width, height])
 
-        force.linkDistance(width/3.5);
-
-
         let b =  d3.select('svg');
 
-        b.selectAll('rect').data(mypoints).enter().append('rect').attr('x', d => d.x).attr('y', d => d.y).attr('width', 3).attr('height', 3).style('fill', 'red')
+        // b.selectAll('rect').data(mypoints).enter().append('rect').attr('x', d => d.x).attr('y', d => d.y).attr('width', 3).attr('height', 3).style('fill', 'red')
         var node = b.selectAll('.node')
             .data(nodes)
             .enter().append('rect')
@@ -63,6 +62,11 @@
             .attr('width', 3)
             .attr('height', 3)
             .style('fill','red');
+
+
+        force.linkDistance(width/3.5);
+
+
         b.on("mouseover", function (e) {
             // t = d3.mouse(this)
             // o = 25, l = 7, h = Math.round(o + 3.5 * l), v = Math.round(o + 2 * l)
@@ -73,6 +77,16 @@
             //     return d.y + 0.1*(Math.random()*t[1] +l)
             // })
             force.start()
+            force.on("tick", function () {
+                node.attr("x", function (d) {
+                    return d.x;
+                })
+                    .attr("y", function (d) {
+                        return d.y;
+                    });
+
+                node.each(collide(0.5))
+            })
         });
         b.on("mouseleave", function () {
             // d3.select('svg').selectAll('rect').attr('x', function (d) {
@@ -82,6 +96,7 @@
             //     return d.y
             // })
             force.stop()
+            force.off()
         });
     }
     //
@@ -104,7 +119,7 @@
     //         let ny = 0.1 * noise(i * 10.2 + frameCount * 0.01) * 10 - 5.0;
     //
     //         // pt.x += noise(i * 10.1 + frameCount * 0.01) * 2 - 1.0;
-    //         // pt.y += noise(i * 10.2 + frameCount * 0.01) * 2 - 1.0;
+    //         // pt.y += noise(i * 10.2 + frameCount * 0.01) * 2 - 1.0;^R
     //
     //         ellipse(pt.x + nx, pt.y + ny, 3);
     //     }
@@ -128,6 +143,33 @@
 
 
 
+    }
+    var padding = 1
+    function collide(alpha) {
+        var quadtree = d3.geom.quadtree(nodes);
+        return function(d) {
+            var rb = 0.001*(2*Math.sqrt(3^2+3^2) + padding),
+                nx1 = d.x - rb,
+                nx2 = d.x + rb,
+                ny1 = d.y - rb,
+                ny2 = d.y + rb;
+
+            quadtree.visit(function(quad, x1, y1, x2, y2) {
+                if (quad.point && (quad.point !== d)) {
+                    var x = d.x - quad.point.x,
+                        y = d.y - quad.point.y,
+                        l = Math.sqrt(x * x + y * y);
+                    if (l < rb) {
+                        l = (l - rb) / l * alpha;
+                        d.x -= x *= l;
+                        d.y -= y *= l;
+                        quad.point.x += x;
+                        quad.point.y += y;
+                    }
+                }
+                return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+            });
+        };
     }
 
 
