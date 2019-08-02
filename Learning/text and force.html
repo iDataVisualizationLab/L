@@ -2,6 +2,8 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
+    <script type="text/javascript" src="6.02/fisheye.js"></script>
+<!--    <script type="text/javascript" src="fish2.js"></script>-->
 
     <!--    <script src="sketch.js"></script>-->
 </head>
@@ -37,18 +39,29 @@
             return {
                 x: points[i].x,
                 y: points[i].y,
+                ox: points[i].x,
+                oy: points[i].y,
             }
         })
 
 
+        var omega = 0.78;
 
 
         console.log(nodes)
+        // var fisheye = d3.fisheye
+        //     .radius(100)
+        //     .distortion(5);
+        // console.log(fisheye)
 
-
-        var force = d3.layout.force()
+        let force = d3.layout.force()
             .nodes(nodes)
             .size([width, height])
+            .friction(0.35)
+            .linkDistance(20)
+            .charge(-30)
+            .gravity(0.1)
+
 
         let b =  d3.select('svg');
 
@@ -64,10 +77,10 @@
             .style('fill','red');
 
 
-        force.linkDistance(width/3.5);
+        // force.linkDistance(width/3.5);
 
 
-        b.on("mouseover", function (e) {
+        b.on("mousemove", function (e) {
             // t = d3.mouse(this)
             // o = 25, l = 7, h = Math.round(o + 3.5 * l), v = Math.round(o + 2 * l)
             // d3.select('svg').selectAll('rect').attr('x', function (d) {
@@ -76,27 +89,31 @@
             // }).attr('y', function (d) {
             //     return d.y + 0.1*(Math.random()*t[1] +l)
             // })
+            var mouseX = d3.mouse(this)[0];
+            var mouseY = d3.mouse(this)[1];
+            var r = 0.1;
+            var x1 = -width/1.5 + mouseX + r * Math.sin(omega);
+            var y1 = -height/1.5 + mouseY + r * Math.cos(omega);
+            // console.log(x1)
+            // console.log(y1)
+            // console.log(mouseX)
             force.start()
             force.on("tick", function () {
-                node.attr("x", function (d) {
-                    return d.x;
-                })
-                    .attr("y", function (d) {
-                        return d.y;
-                    });
 
-                node.each(collide(0.5))
+                node = b.selectAll('.node')
+                    .attr('x', function(d) { return d.x + 0.5*x1; })
+                    .attr('y', function(d) { return d.y + 0.5*y1; });
+
             })
+            console.log(node);
         });
         b.on("mouseleave", function () {
-            // d3.select('svg').selectAll('rect').attr('x', function (d) {
-            //     return d.x
-            //
-            // }).attr('y', function (d) {
-            //     return d.y
-            // })
             force.stop()
-            force.off()
+
+            node = b.selectAll('.node')
+                .attr('x', function(d) { return d.ox; })
+                .attr('y', function(d) { return d.oy; });
+
         });
     }
     //
@@ -144,11 +161,11 @@
 
 
     }
-    var padding = 1
+    var padding = 0.2
     function collide(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
         return function(d) {
-            var rb = 0.001*(2*Math.sqrt(3^2+3^2) + padding),
+            var rb = (2*Math.sqrt(3^2+3^2) + padding),
                 nx1 = d.x - rb,
                 nx2 = d.x + rb,
                 ny1 = d.y - rb,

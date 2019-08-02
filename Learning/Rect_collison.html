@@ -11,41 +11,25 @@
     var numParticles = 5
     var maxVelocity = 8
 
-    // var color = d3.scaleOrdinal().range(d3.schemeCategory20)
-    //
-    // var nodes = Array.apply(null, Array(numParticles)).map(function (_, i) {
-    //     // var size = Math.random() * 60 + 20
-    //     var size = 80
-    //     var velocity = Math.random() * 2 + 1
-    //     var angle = Math.random() * 360   //Angle is calculated based on degree
-    //
-    //     return {
-    //         x: Math.random() * (width - size),
-    //         y: Math.random() * (height - size),
-    //         vx: velocity * Math.cos(angle * Math.PI / 180),
-    //         vy: velocity * Math.sin(angle * Math.PI / 180),
-    //         size: 0.1* size,
-    //         fill: color(i)
-    //     }
-    // })
+    var color = d3.scaleOrdinal().range(d3.schemeCategory20)
 
-    // var nodes = Array.apply(null, Array(numParticles)).map(function (_, i) {
-    //     // var size = Math.random() * 60 + 20
-    //     var size = 80
-    //     var items =[[10,20],[10,25],[10,30], [10,35], [10,40]]
-    //     var velocity = Math.random() * 2 + 1
-    //     var angle = Math.random() * 360   //Angle is calculated based on degree
-    //
-    //     return {
-    //         // x: Math.random() * (width - size),
-    //         // y: Math.random() * (height - size),
-    //         x:
-    //         vx: velocity * Math.cos(angle * Math.PI / 180),
-    //         vy: velocity * Math.sin(angle * Math.PI / 180),
-    //         size: 0.1* size,
-    //         fill: color(i)
-    //     }
-    // })
+    var nodes = Array.apply(null, Array(numParticles)).map(function (_, i) {
+        // var size = Math.random() * 60 + 20
+        var size = 80
+        var velocity = Math.random() * 2 + 1
+        var angle = Math.random() * 360   //Angle is calculated based on degree
+
+        return {
+            x: Math.random() * (width - size),
+            y: Math.random() * (height - size),
+            vx: velocity * Math.cos(angle * Math.PI / 180),
+            vy: velocity * Math.sin(angle * Math.PI / 180),
+            size: 0.1* size,
+            fill: color(i)
+        }
+    })
+
+
 
 
 
