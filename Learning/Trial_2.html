@@ -18,7 +18,7 @@
     let word = "idVL";
     let x;
     let y;
-    let size = 200;
+    let size = 220;
     var links
     function preload(){
         birch = loadFont('BirchStd.otf');
@@ -26,7 +26,7 @@
     function nodecreate(e) {
         return {x: e.x, y: e.y, fixed: !0, radius: 0}
     }
-
+var nodes_old
     function setup() {
 
         width = 600;
@@ -35,16 +35,15 @@
         y = height/2 + 100;
         points = birch.textToPoints(word, x, y, size);
         nodes_old = Array.apply(null, Array(points.length)).map(function (_, i) {
-
             return {
                 x: points[i].x,
                 y: points[i].y,
                 ox: points[i].x,
                 oy: points[i].y,
-                radius: 5
+                radius: 3
             }
         })
-
+        console.log(nodes_old)
         Array.apply(null, Array(points.length)).forEach(function (_, i) {
 
             nodes_old.push({
@@ -54,6 +53,7 @@
                 radius: 0
             })
         })
+        console.log(nodes_old)
         nodes_old.unshift(nodecreate({x: 1e4, y: 1e4}));
         root = nodes_old[0]
 
@@ -63,25 +63,21 @@
                 target : i+points.length+1,
             }
         })
-
-
-
         let svg =  d3.select('svg')
             .attr("width", width)
-            .attr("height", height);;
-
+            .attr("height", height);
+        l = 7;
         let nodes = svg.selectAll("rect")
             .data(nodes_old.slice(1).filter(function(d,i){return i<points.length}))
             .enter().append("rect")
-            .attr("x", function(d) { return d.x; })
-            .attr("y", function(d) { return d.y; })
+            .attr("x", function(d) { return d.ox; })
+            .attr("y", function(d) { return d.oy; })
             .attr("width", function(d) { return d.radius })
             .attr("height", function(d) { return d.radius })
-            .style("fill", "red")
-        ;
+            .style("fill", "red");
         var force = d3.layout.force()
             .gravity(0)
-            .charge(function(d, i) { return i ? 0 : -200; })
+            .charge(function(d, i) { return i ? 0 : -350; })
             .linkDistance(.1)
             .nodes(nodes_old)
             .links(links)
@@ -93,11 +89,10 @@
 
             while (++i < n) q.visit(collide(nodes_old[i]));
             // nodes.forEach((d,i)=>{if (i) {d.x = d.x+0.5*(d.ox-d.x);d.y = d.y+0.5*(d.oy-d.y);}})
-            // console.log("There are collisons happening here")
+            // console.log("There are collision detections happening here")
             nodes
                 .attr("x", function(d) { return (Math.round(d.x)); })
                 .attr("y", function(d) { return (Math.round(d.y)); });
-
         });
         svg.on("mousemove", function() {
             var p1 = d3.mouse(this);
@@ -116,6 +111,8 @@
             l = 7;
             h = Math.round(o + 3.5 * l);
             v = Math.round(o + 2 * l);
+            console.log(h)
+            console.log(v)
             root.px = p1[0]-h;
             root.py = p1[1]-v;
             root.radius = 35;
@@ -155,6 +152,5 @@
             return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
         };
     }
-
 </script>
 </html>
