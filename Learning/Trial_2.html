@@ -1,0 +1,160 @@
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
+    <script type="text/javascript" src="6.02/fisheye.js"></script>
+    <!--    <script type="text/javascript" src="fish2.js"></script>-->
+
+    <!--    <script src="sketch.js"></script>-->
+</head>
+<body>
+<svg width="600px" height="500px">
+
+</svg>
+</body>
+<script>
+    let birch;
+    let points;
+    let word = "idVL";
+    let x;
+    let y;
+    let size = 200;
+    var links
+    function preload(){
+        birch = loadFont('BirchStd.otf');
+    }
+    function nodecreate(e) {
+        return {x: e.x, y: e.y, fixed: !0, radius: 0}
+    }
+
+    function setup() {
+
+        width = 600;
+        height = 500;
+        x = width/2 - 50 ;
+        y = height/2 + 100;
+        points = birch.textToPoints(word, x, y, size);
+        nodes_old = Array.apply(null, Array(points.length)).map(function (_, i) {
+
+            return {
+                x: points[i].x,
+                y: points[i].y,
+                ox: points[i].x,
+                oy: points[i].y,
+                radius: 5
+            }
+        })
+
+        Array.apply(null, Array(points.length)).forEach(function (_, i) {
+
+            nodes_old.push({
+                x: points[i].x,
+                y: points[i].y,
+                fixed: true,
+                radius: 0
+            })
+        })
+        nodes_old.unshift(nodecreate({x: 1e4, y: 1e4}));
+        root = nodes_old[0]
+
+        links = points.map(function(d,i){
+            return {
+                source : i+1,
+                target : i+points.length+1,
+            }
+        })
+
+
+
+        let svg =  d3.select('svg')
+            .attr("width", width)
+            .attr("height", height);;
+
+        let nodes = svg.selectAll("rect")
+            .data(nodes_old.slice(1).filter(function(d,i){return i<points.length}))
+            .enter().append("rect")
+            .attr("x", function(d) { return d.x; })
+            .attr("y", function(d) { return d.y; })
+            .attr("width", function(d) { return d.radius })
+            .attr("height", function(d) { return d.radius })
+            .style("fill", "red")
+        ;
+        var force = d3.layout.force()
+            .gravity(0)
+            .charge(function(d, i) { return i ? 0 : -200; })
+            .linkDistance(.1)
+            .nodes(nodes_old)
+            .links(links)
+            .size([width, height]).start()
+            .on("tick", function(e) {
+            var q = d3.geom.quadtree(nodes_old),
+                i = 0,
+                n = nodes_old.length;
+
+            while (++i < n) q.visit(collide(nodes_old[i]));
+            // nodes.forEach((d,i)=>{if (i) {d.x = d.x+0.5*(d.ox-d.x);d.y = d.y+0.5*(d.oy-d.y);}})
+            // console.log("There are collisons happening here")
+            nodes
+                .attr("x", function(d) { return (Math.round(d.x)); })
+                .attr("y", function(d) { return (Math.round(d.y)); });
+
+        });
+        svg.on("mousemove", function() {
+            var p1 = d3.mouse(this);
+            o = 25;
+            l = 7;
+            h = Math.round(o + 3.5 * l);
+            v = Math.round(o + 2 * l);
+            root.px = p1[0]-h;
+            root.py = p1[1]-v;
+            root.radius = 35;
+            force.resume();
+        });
+        svg.on("touchmove", function() {
+            var p1 = d3.mouse(this);
+            o = 25;
+            l = 7;
+            h = Math.round(o + 3.5 * l);
+            v = Math.round(o + 2 * l);
+            root.px = p1[0]-h;
+            root.py = p1[1]-v;
+            root.radius = 35;
+            force.resume();
+        });
+        svg.on("mouseout", out)
+        function out() {
+            root.px = root.py = 1e4,
+                force.resume()
+        };
+        svg.on("touchend", out)
+        function out() {
+            root.px = root.py = 1e4,
+                force.resume()
+        }
+    }
+    function collide(node) {
+        var r = node.radius +20,
+            nx1 = node.x - r,
+            nx2 = node.x + r,
+            ny1 = node.y - r,
+            ny2 = node.y + r;
+        return function(quad, x1, y1, x2, y2) {
+            if (quad.point && (quad.point !== node)) {
+                var x = node.x - quad.point.x,
+                    y = node.y - quad.point.y,
+                    l = Math.sqrt(x * x + y * y),
+                    r = node.radius + quad.point.radius;
+                if (l < r) {
+                    l = (l - r) / l * .5;
+                    node.x -= x *= l;
+                    node.y -= y *= l;
+                    quad.point.x += x;
+                    quad.point.y += y;
+                }
+            }
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+        };
+    }
+
+</script>
+</html>

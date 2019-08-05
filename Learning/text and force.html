@@ -43,7 +43,9 @@
                 oy: points[i].y,
             }
         })
-
+        root = nodes[0]
+        root.radius = 0;
+        root.fixed = true;
 
         var omega = 0.78;
 
@@ -55,7 +57,7 @@
         // console.log(fisheye)
 
         let force = d3.layout.force()
-            .nodes(nodes)
+            .nodes(nodes.slice(1))
             .size([width, height])
             .friction(0.35)
             .linkDistance(20)
@@ -104,8 +106,10 @@
                     .attr('x', function(d) { return d.x + 0.5*x1; })
                     .attr('y', function(d) { return d.y + 0.5*y1; });
 
+
+
             })
-            console.log(node);
+            // console.log(node);
         });
         b.on("mouseleave", function () {
             force.stop()
