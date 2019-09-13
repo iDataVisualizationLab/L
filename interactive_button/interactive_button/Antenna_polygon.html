@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+        body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+
+        polygon {
+            fill: CadetBlue
+        }
+    </style>
+</head>
+<button type="button" onclick="Select_config1()">Antenna 1</button>
+<button type="button" onclick="Select_config2()">Antenna 2</button>
+<div id="buttons"></div>
+<body>
+<script>
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 600 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+
+    var x = d3.scaleLinear().range([0, 500]);
+    var y = d3.scaleLinear().range([500, 0]);
+
+    x.domain([0, 45]);
+    y.domain([0, 45]);
+    // add the X Axis
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(5));
+
+    // add the Y Axis
+    svg.append("g")
+        .call(d3.axisLeft(y).ticks(5));
+
+    var bound = [{"x": 600 - margin.left - margin.top -width, "y": 500 - margin.left  -height},
+        {"x": 600 - margin.left - margin.top -margin.right-10, "y": 500 - margin.left -height},
+        {"x": 600 - margin.left - margin.top-margin.right-10    , "y": 500 - margin.left }]
+
+    var lineBound = d3.line()
+        .x(function(d) { return (d.x); })
+        .y(function(d) { return (d.y); })
+
+    var lineFunction = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[1]); })
+    // .interpolate("linear");
+
+    // var poly = [{"x":10, "y":40},
+    //     {"x":20,"y":20},
+    //     {"x":42,"y":10},
+    //     {"x":10,"y":40}]; // Seems like they accept only convex for the fun
+
+    var linebound = svg.append("path")
+        .attr("d", lineBound(bound))
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+    var lineGraph1
+    function Select_config1() {
+        var poly1 = [[10, 40],[30,40],[30,10],
+            [20,10], [20,20],[10,20],[10,40]]; // This is an example of orthogonal polygons
+        var point1 = [20,30]
+        var lineGraph1 = svg.append("path")
+            .attr("class","object1")
+            .attr("d", lineFunction(poly1))
+            .attr("stroke", "blue")
+            .attr("stroke-width", 2)
+            .attr("fill", "none");
+        var coax1 = svg.append("circle")
+            .attr("class","object1")
+            .attr("r", 4)
+            .attr("cx", x(point1[0]))
+            .attr("cy", y(point1[1]))
+            .attr("fill","blue")
+        d3.select("path.object2").remove()
+        d3.select("circle.object2").remove()
+
+    }
+
+    function Select_config2(){
+
+        var poly2 = [[8, 9],[35,9],[35,20],
+            [25,20], [25,38],[8,38],[8,9]]; // This is an example of orthogonal polygons
+        var point2 = [28,15]
+
+
+        var lineGraph2 = svg.append("path")
+            .attr("class","object2")
+            .attr("d", lineFunction(poly2))
+            .attr("stroke", "red")
+            .attr("stroke-width", 2)
+            .attr("fill", "none");
+
+        var coax2 = svg.append("circle")
+            .attr("class","object2")
+            .attr("r", 4)
+            .attr("cx", x(point2[0]))
+            .attr("cy", y(point2[1]))
+            .attr("fill","red")
+
+        d3.select("path.object1").remove()
+        d3.select("circle.object1").remove()
+
+    }
+    d3.csv("/data/coax0.csv", function (data) {
+        console.log(d[0])
+    })
+
+    // d3.json("data/points.json", polygons=>{
+    //     polygons = polygons.map(points => points[1].map((d, i) => [points[0][i], points[1][i]]));
+    //     d3.select("#buttons").selectAll(".mybutton").data(polygons).enter().append("button").attr("class", "mybutton").text(function(d, i){return `button ${i}`;});
+    //     console.log(polygons)
+    // });
+
+
+</script>
+</body>

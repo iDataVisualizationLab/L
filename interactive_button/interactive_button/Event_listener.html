@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Add  button-->
+<input type="number" id="buttonSize" value=13>
+<button type="button" onclick="Changecolor('red')">Red</button>
+<button type="button" onclick="Changecolor('yellow')">Yellow</button>
+<button type="button" onclick="Changecolor('black')">Black</button>
+<button type="button" onclick="Changecolor('green')">Green</button>
+
+
+<!-- Create a div where the circle will take place -->
+<div id="dataviz_buttonEventListener"></div>
+
+<script>
+
+    // Initialize a circle
+    var theCircle = d3.select("#dataviz_buttonEventListener")
+        .append("svg")
+        .append("circle")
+        .attr("cx", 100)
+        .attr("cy", 100)
+        .attr("stroke", "black")
+        .style("fill", "#69b3a2")
+        .attr("r", 20)
+
+    // A function that update the color circle
+    function changeSize() {
+        theCircle
+            .attr("r", this.value)
+    }
+    var Changecolor = function(color) {
+        theCircle
+            .style("fill", color)
+    }
+
+    // Add an event listener to the button created in the html part
+    d3.select("#buttonSize").on("input", changeSize )
+
+</script>

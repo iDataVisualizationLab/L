@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        polygon {
+            fill: CadetBlue
+        }
+    </style>
+</head>
+<!--<button type="button" onclick="Select_config1()">Antenna 1</button>-->
+<!--<button type="button" onclick="Select_config2()">Antenna 2</button>-->
+<div id="buttons"></div>
+<body>
+<script>
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 600 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+
+    var x = d3.scaleLinear().range([0, height]);
+    var y = d3.scaleLinear().range([height, 0]);
+    x.domain([0, 20]);
+    y.domain([0, 20]);
+
+
+    // add the X Axis
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(5));
+
+    // add the Y Axis
+    svg.append("g")
+        .call(d3.axisLeft(y).ticks(5));
+
+    var bound = [{"x": 600 - margin.left - margin.right - width, "y": 500 - margin.left - height},
+        {"x": 600 - margin.left - margin.top - margin.right - margin.left - 10, "y": 500 - margin.left - height},
+        {"x": 600 - margin.left - margin.top - margin.right - margin.left - 10, "y": 500 - margin.left}]
+
+    svg.append("text")
+        .attr("transform",
+            "translate(" + (width/2 -margin.left) + " ," +
+            (height-margin.top - margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .attr("dy", "5em")
+        .text("Generation 1");
+
+
+    var lineBound = d3.line()
+        .x(function (d) {
+            return (d.x);
+        })
+        .y(function (d) {
+            return (d.y);
+        })
+
+    var lineFunction = d3.line()
+        .x(function (d) {
+            return x(d[0]);
+        })
+        .y(function (d) {
+            return y(d[1]);
+        })
+    // .interpolate("linear");
+
+    // var poly = [{"x":10, "y":40},
+    //     {"x":20,"y":20},
+    //     {"x":42,"y":10},
+    //     {"x":10,"y":40}]; // Seems like they accept only convex for the fun
+
+    var linebound = svg.append("path")
+        .attr("d", lineBound(bound))
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+
+    var pathColorSheme = d3.schemeCategory20;
+
+    var polygons;
+    var interpolygons;
+    var coaxpoints;
+    d3.json("data/points_gen1.json", polygonsraw => {
+        d3.json("data/inters_gen1.json", interpolygonsraw => {
+            d3.json("data/coax_gen1.json", coaxpointsraw => {
+                polygons = polygonsraw;
+                interpolygons = interpolygonsraw;
+                coaxpoints = coaxpointsraw;
+                polygons = polygons.map(points => points[1].map((d, i) => [points[0][i], points[1][i]]));
+
+                d3.select("#buttons").selectAll(".mybutton").data(polygons).enter().append("button").attr("class", "mybutton")
+                    .attr("onclick", (d, i) => `drawConfig(${i})`)
+                    .text(function (d, i) {
+                        return `antenna ${i + 1}`;
+                    });
+            });
+        });
+    });
+
+    function drawConfig(configIdx) {
+        var configG = svg.select('#configG' + configIdx);
+        if (configG.empty()) {
+            configG = svg.append("g").attr("id", 'configG' + configIdx);
+            var lineGraph = configG.selectAll(`.object1configIdx${configIdx}`);
+            //If it is empty then add.
+
+
+            //Outer
+            var poly = polygons[configIdx];
+            lineGraph.data([poly]).enter().append("path")
+
+                .attr("d", d => lineFunction(d))
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("fill", pathColorSheme[configIdx]);
+
+            //Inner
+            var inters = interpolygons[configIdx];
+
+            if (inters[0].length > 0) {
+                configG.selectAll(".interG")
+                    .data(inters[0])
+                    .enter().append("g").attr("class", "interG")
+                    .selectAll(".interpoly").data((d, i) => {
+                        let xs = inters[0][i];
+                        let ys = inters[1][i];
+                        let xys = xs.map((x, i)=>[x, ys[i]]);
+                        return [xys];
+                    }).enter().append("path")
+                        .attr("d", d => lineFunction(d))
+                        .attr("stroke", "blue")
+                        .attr("stroke-width", 2)
+                        .attr("fill", "white");
+            }
+
+
+            //Coax
+            let point = coaxpoints[configIdx];
+            configG.append("circle")
+
+                .attr("r", 4)
+                .attr("cx", x(point[0]))
+                .attr("cy", y(point[1]))
+                .attr("fill", 'black');
+
+        } else {
+            configG.remove();
+        }
+    }
+
+
+</script>
+</body>

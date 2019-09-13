@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        polygon {
+            fill: CadetBlue
+        }
+
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
+        }
+
+        .node text {
+            font: 12px sans-serif;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
+    </style>
+</head>
+<!--<button type="button" onclick="Select_config1()">Antenna 1</button>-->
+<!--<button type="button" onclick="Select_config2()">Antenna 2</button>-->
+
+<div id="container" >
+    <div id="content1" style="position: relative; float: left">
+        <div id="buttons1"></div>
+    </div>
+    <div id="content2" style="position: relative; float: left">
+        <div id="buttons20"></div>
+    </div>
+    <div id="tree">
+    </div>
+</div>
+
+<body>
+<script>
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 600 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var svg1 = d3.select("#content1").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    svg1.append("text")
+        .attr("transform",
+            "translate(" + (width/2 -margin.left) + " ," +
+            (height-margin.top - margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .attr("dy", "5em")
+        .text("Generation 1");
+
+
+    var svg2 = d3.select("#content2").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    svg2.append("text")
+        .attr("transform",
+            "translate(" + (width/2 -margin.left) + " ," +
+            (height-margin.top - margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .attr("dy", "5em")
+        .text("Generation 20");
+
+    var x = d3.scaleLinear().range([0, height]);
+    var y = d3.scaleLinear().range([0, height]);
+    x.domain([0, 20]);
+    y.domain([0, 20]);
+
+
+    // add the X Axis
+    svg1.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(5));
+
+    // add the Y Axis
+    svg1.append("g")
+        .call(d3.axisLeft(y).ticks(5));
+
+    // add the X Axis
+    svg2.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(5));
+
+    // add the Y Axis
+    svg2.append("g")
+        .call(d3.axisLeft(y).ticks(5));
+
+    var bound = [{"x": 600 - margin.left - margin.right - width, "y": 500 - margin.left - height},
+        {"x": 600 - margin.left - margin.top - margin.right - margin.left - 10, "y": 500 - margin.left - height},
+        {"x": 600 - margin.left - margin.top - margin.right - margin.left - 10, "y": 500 - margin.left}]
+
+    var lineBound = d3.line()
+        .x(function (d) {
+            return (d.x);
+        })
+        .y(function (d) {
+            return (d.y);
+        })
+
+    var lineFunction = d3.line()
+        .x(function (d) {
+            return x(d[0]);
+        })
+        .y(function (d) {
+            return y(d[1]);
+        })
+    // .interpolate("linear");
+
+    // var poly = [{"x":10, "y":40},
+    //     {"x":20,"y":20},
+    //     {"x":42,"y":10},
+    //     {"x":10,"y":40}]; // Seems like they accept only convex for the fun
+
+    var linebound1 = svg1.append("path")
+        .attr("d", lineBound(bound))
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+    var linebound2 = svg2.append("path")
+        .attr("d", lineBound(bound))
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+
+    var pathColorSheme = d3.schemeCategory20;
+
+    var polygons1;
+    var interpolygons1;
+    var coaxpoints1;
+    d3.json("data/points_gen1.json", polygonsraw => {
+        d3.json("data/inters_gen1.json", interpolygonsraw => {
+            d3.json("data/coax_gen1.json", coaxpointsraw => {
+                polygons1 = polygonsraw;
+                interpolygons1 = interpolygonsraw;
+                coaxpoints1 = coaxpointsraw;
+                polygons1 = polygons1.map(points => points[1].map((d, i) => [points[0][i], points[1][i]]));
+
+                d3.select("#buttons1").selectAll(".mybutton").data(polygons1).enter().append("button").attr("class", "mybutton")
+                    .attr("onclick", (d, i) => `drawConfig1(${i})`)
+                    .text(function (d, i) {
+                        return `Gen1_config${i + 1}`;
+                    });
+            });
+        });
+    });
+
+    function drawConfig1(configIdx) {
+        var configG = svg1.select('#configG' + configIdx);
+        if (configG.empty()) {
+            configG = svg1.append("g").attr("id", 'configG' + configIdx);
+            var lineGraph = configG.selectAll(`.object1configIdx${configIdx}`);
+            //If it is empty then add.
+
+
+            //Outer
+            var poly = polygons1[configIdx];
+            lineGraph.data([poly]).enter().append("path")
+
+                .attr("d", d => lineFunction(d))
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("fill", pathColorSheme[configIdx]);
+
+            //Inner
+            var inters = interpolygons1[configIdx];
+
+            if (inters[0].length > 0) {
+                configG.selectAll(".interG")
+                    .data(inters[0])
+                    .enter().append("g").attr("class", "interG")
+                    .selectAll(".interpoly").data((d, i) => {
+                    let xs = inters[0][i];
+                    let ys = inters[1][i];
+                    let xys = xs.map((x, i)=>[x, ys[i]]);
+                    return [xys];
+                }).enter().append("path")
+                    .attr("d", d => lineFunction(d))
+                    .attr("stroke", "blue")
+                    .attr("stroke-width", 2)
+                    .attr("fill", "white");
+            }
+
+
+            //Coax
+            let point = coaxpoints1[configIdx];
+            configG.append("circle")
+
+                .attr("r", 4)
+                .attr("cx", x(point[0]))
+                .attr("cy", y(point[1]))
+                .attr("fill", 'black');
+
+        } else {
+            configG.remove();
+        }
+    }
+
+    var polygons20;
+    var interpolygons20;
+    var coaxpoints20;
+    d3.json("data/points_gen20.json", polygonsraw => {
+        d3.json("data/inters_gen20.json", interpolygonsraw => {
+            d3.json("data/coax_gen20.json", coaxpointsraw => {
+                polygons20 = polygonsraw;
+                interpolygons20 = interpolygonsraw;
+                coaxpoints20 = coaxpointsraw;
+                polygons20 = polygons20.map(points => points[1].map((d, i) => [points[0][i], points[1][i]]));
+
+                d3.select("#buttons20").selectAll(".mybutton").data(polygons20).enter().append("button").attr("class", "mybutton")
+                    .attr("onclick", (d, i) => `drawConfig20(${i})`)
+                    .text(function (d, i) {
+                        return `Gen20_config ${i + 1}`;
+                    });
+            });
+        });
+    });
+
+    function drawConfig20(configIdx) {
+        var configG = svg2.select('#configG' + configIdx);
+        if (configG.empty()) {
+            configG = svg2.append("g").attr("id", 'configG' + configIdx);
+            var lineGraph = configG.selectAll(`.object1configIdx${configIdx}`);
+            //If it is empty then add.
+
+
+            //Outer
+            var poly = polygons20[configIdx];
+            lineGraph.data([poly]).enter().append("path")
+
+                .attr("d", d => lineFunction(d))
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("fill", pathColorSheme[configIdx]);
+
+            //Inner
+            var inters = interpolygons20[configIdx];
+
+            if (inters[0].length > 0) {
+                configG.selectAll(".interG")
+                    .data(inters[0])
+                    .enter().append("g").attr("class", "interG")
+                    .selectAll(".interpoly").data((d, i) => {
+                    let xs = inters[0][i];
+                    let ys = inters[1][i];
+                    let xys = xs.map((x, i)=>[x, ys[i]]);
+                    return [xys];
+                }).enter().append("path")
+                    .attr("d", d => lineFunction(d))
+                    .attr("stroke", "blue")
+                    .attr("stroke-width", 2)
+                    .attr("fill", "white");
+            }
+
+
+            //Coax
+            let point = coaxpoints20[configIdx];
+            configG.append("circle")
+
+                .attr("r", 4)
+                .attr("cx", x(point[0]))
+                .attr("cy", y(point[1]))
+                .attr("fill", 'black');
+
+        } else {
+            configG.remove();
+        }
+    }
+    function drawTree(){
+        var treeData
+        d3.json("data/tree_all_gen1.json", treeraw => {
+
+
+            treeData = treeraw[0][0];
+            // console.log(treeData)
+            // Set the dimensions and margins of the diagram
+            var margin = {top: 20, right: 90, bottom: 30, left: 90},
+                width = 1500 - margin.left - margin.right,
+                height = 750 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            // appends a 'group' element to 'svg'
+            // moves the 'group' element to the top left margin
+            var svg = d3.select("body").append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate("
+                    + margin.left + "," + margin.top + ")");
+
+            var i = 0,
+                duration = 750,
+                root;
+
+            // declares a tree layout and assigns the size
+            var treemap = d3.tree().size([height, width]);
+
+            // Assigns parent, children, height, depth
+            root = d3.hierarchy(treeData, function (d) {
+                return d.children;
+            });
+            root.x0 = height / 2;
+            root.y0 = 0;
+
+            // Collapse after the second level (L)
+            // root.children.forEach(collapse);
+            // console.log(root)
+            rootraw = root
+            update(root);
+
+            // Collapse the node and all it's children
+            function collapse(d) {
+                if (d.children) {
+                    d._children = d.children
+                    d._children.forEach(collapse)
+                    d.children = null
+                }
+            }
+            var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+            function update(source) {
+
+                // Assigns the x and y position for the nodes
+                var treeData = treemap(root);
+
+                // Compute the new tree layout.
+                var nodes = treeData.descendants(),
+                    links = treeData.descendants().slice(1);
+                // console.log(nodes)
+                // Normalize for fixed-depth.
+                nodes.forEach(function (d) {
+                    d.y = d.depth * 100
+                });
+
+                // ****************** Nodes section ***************************
+
+                // Update the nodes...
+                var node = svg.selectAll('g.node')
+                    .data(nodes, function (d) {
+                        return d.id || (d.id = ++i);
+                    });
+
+                // Enter any new modes at the parent's previous position.
+                var nodeEnter = node.enter().append('g')
+                        .attr('class', 'node')
+                        .attr("transform", function (d) {
+                            return "translate(" + source.y0 + "," + source.x0 + ")";
+                        })
+                        .on('click', click)
+                    // .on("dblclick",(d)=>{
+                    //     if(d.depth ===6){
+                    //         // lineFunction(d.data.coordinate
+                    //         // svg.data([d.data.cordinate]).enter().append("path")
+                    //         //     .attr("d", d => lineFunction(d))
+                    //         //     .attr("stroke", "blue")
+                    //         //     .attr("stroke-width", 2)
+                    //         console.log("to be plot")
+                    //     }
+                    // })
+                ;
+
+                ;
+                var lineFunction = d3.line()
+                    .x(function (d) {
+                        return (d[0]);
+                    })
+                    .y(function (d) {
+                        return (d[1]);
+                    })
+                var valueline = d3.line()
+                    .x(function(d) { return (d[0]*10)+9*100; })
+                    .y(function(d) { return (d[1]*10)+height/2-200; });
+                // Add Circle for the nodes
+                nodeEnter.append('circle')
+                    .attr('class', 'node')
+                    .attr('r', 1e-6)
+                    .style("fill", function (d) {
+                        return d._children ? "lightsteelblue" : "#fff";
+                    });
+
+                // Add labels for the nodes
+                nodeEnter.append('text')
+                    .attr("dy", ".35em")
+                    .attr("x", function (d) {
+                        return d.children || d._children ? -13 : 13;
+                    })
+                    .attr("text-anchor", function (d) {
+                        return d.children || d._children ? "end" : "start";
+                    })
+                    .text(function (d) {
+                        return d.data.name;
+                    });
+
+                // nodeEnter.append("image")
+                //     .attr("xlink:href", function(d) { return d.data.icon; })
+                //     .attr("x", "-12px")
+                //     .attr("y", "-12px")
+                //     .attr("width", "24px")
+                //     .attr("height", "24px");
+
+                // UPDATE
+                var nodeUpdate = nodeEnter.merge(node);
+
+                // Transition to the proper position for the node
+                nodeUpdate.transition()
+                    .duration(duration)
+                    .attr("transform", function (d) {
+                        return "translate(" + d.y + "," + d.x + ")";
+                    });
+
+                // Update the node attributes and style
+                nodeUpdate.select('circle.node')
+                    .attr('r', 10)
+                    .style("fill", function (d) {
+                        return d._children ? "lightsteelblue" : "#fff";
+                    })
+                    .attr('cursor', 'pointer');
+
+
+                // Remove any exiting nodes
+                var nodeExit = node.exit().transition()
+                    .duration(duration)
+                    .attr("transform", function (d) {
+                        return "translate(" + source.y + "," + source.x + ")";
+                    })
+                    .remove();
+
+                // On exit reduce the node circles size to 0
+                nodeExit.select('circle')
+                    .attr('r', 1e-6);
+
+                // On exit reduce the opacity of text labels
+                nodeExit.select('text')
+                    .style('fill-opacity', 1e-6);
+
+                // ****************** links section ***************************
+
+                // Update the links...
+                var link = svg.selectAll('path.link')
+                    .data(links, function (d) {
+                        return d.id;
+                    });
+
+                // Enter any new links at the parent's previous position.
+                var linkEnter = link.enter().insert('path', "g")
+                    .attr("class", "link")
+                    .attr('d', function (d) {
+                        var o = {x: source.x0, y: source.y0}
+                        return diagonal(o, o)
+                    });
+
+                // UPDATE
+                var linkUpdate = linkEnter.merge(link);
+
+                // Transition back to the parent element position
+                linkUpdate.transition()
+                    .duration(duration)
+                    .attr('d', function (d) {
+                        return diagonal(d, d.parent)
+                    });
+
+                // Remove any exiting links
+                var linkExit = link.exit().transition()
+                    .duration(duration)
+                    .attr('d', function (d) {
+                        var o = {x: source.x, y: source.y}
+                        return diagonal(o, o)
+                    })
+                    .remove();
+
+                // Store the old positions for transition.
+                nodes.forEach(function (d) {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+
+                // Creates a curved (diagonal) path from parent to the child nodes
+                function diagonal(s, d) {
+
+                    path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+              ${(s.y + d.y) / 2} ${d.x},
+              ${d.y} ${d.x}`
+
+                    return path
+                }
+
+                // Toggle children on click.
+                // function click(d) {
+                //     if (d.children) {
+                //         d._state = 0
+                //         d._children = d.children;
+                //         d.children = null;
+                //         if (d.depth ==6){console.log(d._state)}
+                //     } else {
+                //         d._state =1
+                //         d.children = d._children;
+                //         d._children = null;
+                //         if (d.depth ==6){console.log(d._state)}
+                //     }
+                //     update(d);
+                // }
+                function click(d) {
+                    // debugger
+                    if(d._state===undefined){
+                        d._state = -1;
+                    }
+                    d._state += 1;
+                    d._state = d._state%4;
+                    console.log(d._state)
+                    if (d._state == 0) { // back the chromosome
+
+                        d._children = d.children;
+                        d.children = null;
+
+                    } if (d._state == 1) { // open chromosome
+                        d.children = d._children;
+                        d._children = null;
+                    }
+                    if (d._state == 2) {
+                        d._children = d.children;
+                        d.children = null;
+                        // d3.transition()
+                        //     .duration(2000)
+                        //     .ease(d3.easeLinear)
+                        console.log(d)
+                        let poly =   svg.append("svg:path")
+                            .attr("class", "lineunit")
+                            .data([d.data.cordinate])
+                            .attr("d", valueline)
+                            .attr("fill","blue");
+                        let linebound =  svg.append("svg:path")
+                            .data([bound])
+                            .attr("class", "linebound")
+                            .attr("d", valueline)
+                            .attr("stroke", "black")
+                            .attr("fill", "none");
+
+                    } if (d._state == 3) {
+                        d.children = d._children;
+                        d._children = null;
+                        d3.select(`path.lineunit`).remove();
+                        d3.select(`path.linebound`).remove();
+
+                    }
+                    update(d);
+                }
+            }
+        })
+    }
+    drawTree()
+
+
+</script>
+</body>
