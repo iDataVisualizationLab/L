@@ -27,15 +27,16 @@
 <script>
     var valueline = d3.line()
 
-        .x(function(d) {console.log(d)
+        .x(function(d) {
+            // console.log(d)
             return (d[0]*2)+ d.ynode + 20;})
         .y(function(d) { return (d[1]*2)+d.xnode;})
 
-        // .x(function(d) {console.log(d)
-        //     return (d[0]*10)+ d.ynode+200;})
-        // .y(function(d) { return (d[1]*10)+d.xnode;});
+    // .x(function(d) {console.log(d)
+    //     return (d[0]*10)+ d.ynode+200;})
+    // .y(function(d) { return (d[1]*10)+d.xnode;});
     var treeData
-    d3.json("data/tree_all_gen1.json", treeraw => {
+    d3.json("data/tree_test_union.json", treeraw => {
 
 
         treeData = treeraw[0][0];
@@ -286,10 +287,45 @@
                 // console.log(d._state)
                 if (d._state == 0) { // back the chromosome
 
-                    d._children = d.children;
-                    console.log(d.id);//15
-                    d.children = null;
+
                     if (d.depth==6){
+                        d._children = d.children;
+                        console.log(d.id);//15
+                        d.children = null;
+                        // console.log(d)
+                        var coords = d.data.cordinate;
+                        xnode = d.x;
+                        ynode = d.y;
+                        coords.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                        });
+                        bound.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                        });
+                        console.log(d)
+                        var sanu = svg.append("g").attr("id", "group"+d.id)
+                        let poly =   sanu.append("path")
+
+                            .attr("class", "lineunit")
+                            .data([coords])
+                            .attr("d",  d => valueline(d))
+                            .attr("fill","blue")
+                            .attr("stroke", "black")
+                            .style("stroke-width","2px")
+                            .attr("opacity","0.3");
+                        let linebound =  sanu.append("path")
+                            .data([bound])
+                            .attr("class", "linebound")
+                            .attr("d", valueline)
+                            .attr("stroke", "black")
+                            .attr("fill", "none");
+                    }
+                    if (d.depth==5){
+                        d._children = d.children;
+                        console.log(d.id);//15
+                        d.children = null;
                         // console.log(d)
                         var coords = d.data.cordinate;
                         xnode = d.x;
@@ -320,11 +356,47 @@
                             .attr("stroke", "black")
                             .attr("fill", "none");
                     }
+                    if (d.depth==4){
+                        d._children = d.children;
+                        console.log(d.id);//15
+                        d.children = null;
+                        // console.log(d)
+                        // console.log(d)
+                        var coords = d.data.cordinate;
+                        xnode = d.x;
+                        ynode = d.y;
+                        coords.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                        });
+                        bound.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                        });
+                        console.log(coords)
+                        var sanu = svg.append("g").attr("id", "group"+d.id)
+                        let poly =   sanu.append("path")
+
+                            .attr("class", "lineunit")
+                            .data([coords])
+                            .attr("d",  d => valueline(d))
+                            .attr("fill","blue")
+                            .attr("stroke", "black")
+                            .style("stroke-width","2px")
+                            .attr("opacity","0.3");
+                        let linebound =  sanu.append("path")
+                            .data([bound])
+                            .attr("class", "linebound")
+                            .attr("d", valueline)
+                            .attr("stroke", "black")
+                            .attr("fill", "none");}
+                    if (d.depth==3){
+                        console.log(d)}
 
                 } if (d._state == 1) { // open chromosome
                     d.children = d._children;
                     d._children = null;
-                    if (d.depth==6){
+                    if (d.depth==6 || d.depth==5 || d.depth ==4){
                         d3.select('#group' + d.id).remove();
                     }
                     // d3.select(`path.linebound`).remove();

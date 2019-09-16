@@ -126,6 +126,12 @@
         .y(function (d) {
             return y(d[1]);
         })
+    var valueline = d3.line()
+
+        .x(function(d) {console.log(d)
+            return (d[0]*10)+700; })
+        .y(function(d) { return (d[1]*10)+300; });
+
     // .interpolate("linear");
 
     // var poly = [{"x":10, "y":40},
@@ -326,17 +332,26 @@
             root.y0 = 0;
 
             // Collapse after the second level (L)
-            // root.children.forEach(collapse);
+            root.children.forEach(collapseLevel);
             // console.log(root)
             rootraw = root
             update(root);
 
             // Collapse the node and all it's children
-            function collapse(d) {
-                if (d.children) {
-                    d._children = d.children
-                    d._children.forEach(collapse)
-                    d.children = null
+            // function collapse(d) {
+            //     if (d.children) {
+            //         d._children = d.children
+            //         d._children.forEach(collapse)
+            //         d.children = null
+            //     }
+            // }
+            function collapseLevel(d) {
+                if (d.children && d.depth > 5) {
+                    d._children = d.children;
+                    d._children.forEach(collapseLevel);
+                    d.children = null;
+                } else if (d.children) {
+                    d.children.forEach(collapseLevel);
                 }
             }
             var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
@@ -382,16 +397,14 @@
                 ;
 
                 ;
-                var lineFunction = d3.line()
-                    .x(function (d) {
-                        return (d[0]);
-                    })
-                    .y(function (d) {
-                        return (d[1]);
-                    })
-                var valueline = d3.line()
-                    .x(function(d) { return (d[0]*10)+9*100; })
-                    .y(function(d) { return (d[1]*10)+height/2-200; });
+                // var lineFunction = d3.line()
+                //     .x(function (d) {
+                //         return (d[0]);
+                //     })
+                //     .y(function (d) {
+                //         return (d[1]);
+                //     })
+
                 // Add Circle for the nodes
                 nodeEnter.append('circle')
                     .attr('class', 'node')
@@ -529,11 +542,30 @@
                     }
                     d._state += 1;
                     d._state = d._state%4;
-                    console.log(d._state)
+                    // console.log(d._state)
                     if (d._state == 0) { // back the chromosome
 
                         d._children = d.children;
                         d.children = null;
+                        // console.log(d)
+                        var coords = d.data.cordinate;
+                        coords.xnode = d.x;
+                        coords.ynode = d.y;
+                        console.log(coords)
+                        let poly =   svg.append("svg:path")
+                            .attr("class", "lineunit")
+                            .data([coords])
+                            .attr("d",  d => valueline(d))
+                            .attr("fill","blue")
+                            .attr("stroke", "black")
+                            .style("stroke-width","2px")
+                            .attr("opacity","0.3");
+                        let linebound =  svg.append("svg:path")
+                            .data([bound])
+                            .attr("class", "linebound")
+                            .attr("d", valueline)
+                            .attr("stroke", "black")
+                            .attr("fill", "none");
 
                     } if (d._state == 1) { // open chromosome
                         d.children = d._children;
@@ -545,18 +577,8 @@
                         // d3.transition()
                         //     .duration(2000)
                         //     .ease(d3.easeLinear)
-                        console.log(d)
-                        let poly =   svg.append("svg:path")
-                            .attr("class", "lineunit")
-                            .data([d.data.cordinate])
-                            .attr("d", valueline)
-                            .attr("fill","blue");
-                        let linebound =  svg.append("svg:path")
-                            .data([bound])
-                            .attr("class", "linebound")
-                            .attr("d", valueline)
-                            .attr("stroke", "black")
-                            .attr("fill", "none");
+
+
 
                     } if (d._state == 3) {
                         d.children = d._children;
@@ -566,6 +588,7 @@
 
                     }
                     update(d);
+
                 }
             }
         })
