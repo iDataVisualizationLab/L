@@ -372,6 +372,7 @@
                         bound.forEach(function(d) {
                             d.xnode =xnode
                             d.ynode = ynode
+                            console.log(typeof (d))
                         });
                         console.log(coords)
                         var sanu = svg.append("g").attr("id", "group"+d.id)
