@@ -29,8 +29,8 @@
 
         .x(function(d) {
             // console.log(d)
-            return (d[0]*2)+ d.ynode + 20;})
-        .y(function(d) { return (d[1]*2)+d.xnode;})
+            return -0.5*((d[0]*1))+ d.ynode;})
+        .y(function(d) { return -0.5*((d[1]*1))+d.xnode;})
 
     // .x(function(d) {console.log(d)
     //     return (d[0]*10)+ d.ynode+200;})
@@ -85,7 +85,7 @@
         //     }
         // }
         function collapseLevel(d) {
-            if (d.children && d.depth > 5) {
+            if (d.children && d.depth > 6) {
                 d._children = d.children;
                 d._children.forEach(collapseLevel);
                 d.children = null;
@@ -118,24 +118,25 @@
 
             // Enter any new modes at the parent's previous position.
             var nodeEnter = node.enter().append('g')
-                    .attr('class', 'node')
-                    .attr("transform", function (d) {
-                        return "translate(" + source.y0 + "," + source.x0 + ")";
-                    })
-                    .on('click', click)
-                // .on("dblclick",(d)=>{
-                //     if(d.depth ===6){
-                //         // lineFunction(d.data.coordinate
-                //         // svg.data([d.data.cordinate]).enter().append("path")
-                //         //     .attr("d", d => lineFunction(d))
-                //         //     .attr("stroke", "blue")
-                //         //     .attr("stroke-width", 2)
-                //         console.log("to be plot")
-                //     }
-                // })
-            ;
+                .attr('class', 'node')
+                .attr('id',(d,i)=>{
+                    return `g${i}`
+                })
+                .attr("transform", function (d) {
+                    return "translate(" + source.y0 + "," + source.x0 + ")";
+                })
+                .on('click', click);
+            // .on("dblclick",(d)=>{
+            //     if(d.depth ===6){
+            //         // lineFunction(d.data.coordinate
+            //         // svg.data([d.data.cordinate]).enter().append("path")
+            //         //     .attr("d", d => lineFunction(d))
+            //         //     .attr("stroke", "blue")
+            //         //     .attr("stroke-width", 2)
+            //         console.log("to be plot")
+            //     }
+            // })
 
-            ;
             // var lineFunction = d3.line()
             //     .x(function (d) {
             //         return (d[0]);
@@ -165,7 +166,12 @@
                     return d.children || d._children ? "end" : "start";
                 })
                 .text(function (d) {
-                    return d.data.name;
+                    if (d.depth >6){
+                        return  d3.format('.2f')(d.data.name)
+                    }
+                    else {
+                        return d.data.name
+                    };
                 });
 
             // nodeEnter.append("image")
@@ -285,14 +291,19 @@
                 d._state += 1;
                 d._state = d._state%2;
                 // console.log(d._state)
+                console.log(d.id)
                 if (d._state == 0) { // back the chromosome
 
 
                     if (d.depth==6){
                         d._children = d.children;
-                        console.log(d.id);//15
+                        console.log(d);//15
                         d.children = null;
                         // console.log(d)
+                        // d3.select('#n' + d.id).remove();
+                        console.log(this)
+                        d3.select(this).selectAll('circle').attr('visibility', 'hidden');
+                        d3.select(this).selectAll('text').style('fill-opacity', 1e-6)
                         var coords = d.data.cordinate;
                         xnode = d.x;
                         ynode = d.y;
@@ -324,7 +335,7 @@
                     }
                     if (d.depth==5){
                         d._children = d.children;
-                        console.log(d.id);//15
+                        console.log(d);//15
                         d.children = null;
                         // console.log(d)
                         var coords = d.data.cordinate;
@@ -369,7 +380,7 @@
                         bound.forEach(function(d) {
                             d.xnode =xnode
                             d.ynode = ynode
-                            console.log(typeof (d))
+                            // console.log(typeof (d))
                         });
                         // console.log(coords)
                         let Outer = coords.filter(d=>typeof(d[0])==="number")
@@ -480,6 +491,8 @@
                     d._children = null;
                     if (d.depth==6 || d.depth==5 || d.depth ==4){
                         d3.select('#group' + d.id).remove();
+                        // d3.select(this).selectAll('circle').style('fill-opacity', 1)
+                        d3.select(this).selectAll('text').style('fill-opacity', 1)
                     }
                     // d3.select(`path.linebound`).remove();
                 }
