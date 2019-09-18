@@ -36,7 +36,7 @@
     //     return (d[0]*10)+ d.ynode+200;})
     // .y(function(d) { return (d[1]*10)+d.xnode;});
     var treeData
-    d3.json("data/tree_test_union.json", treeraw => {
+    d3.json("data/tree_test_full.json", treeraw => {
 
 
         treeData = treeraw[0][0];
@@ -358,33 +358,57 @@
                     }
                     if (d.depth==4){
                         d._children = d.children;
-                        console.log(d.id);//15
+                        // console.log(d.id);
                         d.children = null;
                         // console.log(d)
                         // console.log(d)
                         var coords = d.data.cordinate;
                         xnode = d.x;
                         ynode = d.y;
-                        coords.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
+
                         bound.forEach(function(d) {
                             d.xnode =xnode
                             d.ynode = ynode
                             console.log(typeof (d))
                         });
-                        console.log(coords)
+                        // console.log(coords)
+                        let Outer = coords.filter(d=>typeof(d[0])==="number")
+                        Outer.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                        });
+
+
+                        // console.log(Outer)
+                        // console.log(Inner)
                         var sanu = svg.append("g").attr("id", "group"+d.id)
                         let poly =   sanu.append("path")
 
                             .attr("class", "lineunit")
-                            .data([coords])
+                            .data([Outer])
                             .attr("d",  d => valueline(d))
                             .attr("fill","blue")
                             .attr("stroke", "black")
                             .style("stroke-width","2px")
                             .attr("opacity","0.3");
+
+                        let Inner = coords.filter(d=>typeof(d[0])!=="number")
+                        if (Inner.length >0){
+                            Inner = Inner[0]
+                            Inner.forEach(function(d) {
+                                d.xnode =xnode
+                                d.ynode = ynode
+                            });
+                            let poly_in =   sanu.append("path")
+                                .attr("class", "lineunit")
+                                .data([Inner])
+                                .attr("d",  d => valueline(d))
+                                .attr("fill","white")
+                                .attr("stroke", "blue")
+                                .style("stroke-width","1px")
+
+                        }
+
                         let linebound =  sanu.append("path")
                             .data([bound])
                             .attr("class", "linebound")
@@ -392,7 +416,64 @@
                             .attr("stroke", "black")
                             .attr("fill", "none");}
                     if (d.depth==3){
-                        console.log(d)}
+                        d._children = d.children;
+                        // console.log(d.id);
+                        d.children = null;
+                        // console.log(d)
+                        // console.log(d)
+                        var coords = d.data.cordinate;
+                        xnode = d.x;
+                        ynode = d.y;
+
+                        bound.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                            console.log(typeof (d))
+                        });
+                        // console.log(coords)
+                        let Outer = coords.filter(d=>typeof(d[0])==="number")
+                        Outer.forEach(function(d) {
+                            d.xnode =xnode
+                            d.ynode = ynode
+                        });
+
+
+                        // console.log(Outer)
+                        // console.log(Inner)
+                        var sanu = svg.append("g").attr("id", "group"+d.id)
+                        let poly =   sanu.append("path")
+
+                            .attr("class", "lineunit")
+                            .data([Outer])
+                            .attr("d",  d => valueline(d))
+                            .attr("fill","blue")
+                            .attr("stroke", "black")
+                            .style("stroke-width","2px")
+                            .attr("opacity","0.3");
+
+                        let Inner = coords.filter(d=>typeof(d[0])!=="number")
+                        if (Inner.length >0){
+                            Inner = Inner[0]
+                            Inner.forEach(function(d) {
+                                d.xnode =xnode
+                                d.ynode = ynode
+                            });
+                            let poly_in =   sanu.append("path")
+                                .attr("class", "lineunit")
+                                .data([Inner])
+                                .attr("d",  d => valueline(d))
+                                .attr("fill","white")
+                                .attr("stroke", "blue")
+                                .style("stroke-width","1px")
+
+                        }
+
+                        let linebound =  sanu.append("path")
+                            .data([bound])
+                            .attr("class", "linebound")
+                            .attr("d", valueline)
+                            .attr("stroke", "black")
+                            .attr("fill", "none");}
 
                 } if (d._state == 1) { // open chromosome
                     d.children = d._children;
