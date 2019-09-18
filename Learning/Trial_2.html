@@ -15,7 +15,7 @@
 <script>
     let birch;
     let points;
-    let word = "idVL";
+    let word = "Linh";
     let x;
     let y;
     let size = 220;
@@ -124,13 +124,13 @@ var nodes_old
                 force.resume()
         };
         svg.on("touchend", out)
-        function out() {
-            root.px = root.py = 1e4,
-                force.resume()
-        }
+        // function out() {
+        //     root.px = root.py = 1e4,
+        //         force.resume()
+        // }
     }
     function collide(node) {
-        var r = node.radius +20,
+        var r = node.radius + 5 ,
             nx1 = node.x - r,
             nx2 = node.x + r,
             ny1 = node.y - r,
