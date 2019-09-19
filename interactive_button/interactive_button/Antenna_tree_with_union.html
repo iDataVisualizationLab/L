@@ -29,12 +29,19 @@
 
         .x(function(d) {
             // console.log(d)
-            return -0.5*((d[0]*2))+ d.ynode;})
-        .y(function(d) { return -0.5*((d[1]*2))+d.xnode;})
+            return ((d[0]*2));})
+        .y(function(d) { return ((d[1]*2));})
+    var margin = {top: 20, right: 90, bottom: 30, left: 90},
+        width = 1500 - margin.left - margin.right,
+        height = 750 - margin.top - margin.bottom;
 
-    // .x(function(d) {console.log(d)
-    //     return (d[0]*10)+ d.ynode+200;})
-    // .y(function(d) { return (d[1]*10)+d.xnode;});
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate("
+            + margin.left + "," + margin.top + ")");
+
     var treeData
     d3.json("data/tree_test_full.json", treeraw => {
 
@@ -42,26 +49,16 @@
         treeData = treeraw[0][0];
         // console.log(treeData)
         // Set the dimensions and margins of the diagram
-        var margin = {top: 20, right: 90, bottom: 30, left: 90},
-            width = 1500 - margin.left - margin.right,
-            height = 750 - margin.top - margin.bottom;
 
-        // append the svg object to the body of the page
-        // appends a 'group' element to 'svg'
-        // moves the 'group' element to the top left margin
-        var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.right + margin.left)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate("
-                + margin.left + "," + margin.top + ")");
 
         var i = 0,
             duration = 750,
             root;
 
         // declares a tree layout and assigns the size
-        var treemap = d3.tree().size([height, width]);
+        var treemap = d3.tree().size([height, width])
+            .separation(function(a, b) { return a.parent === b.parent ? 1 : 2; })
+        ;
 
         // Assigns parent, children, height, depth
         root = d3.hierarchy(treeData, function (d) {
@@ -76,16 +73,8 @@
         rootraw = root
         update(root);
 
-        // Collapse the node and all it's children
-        // function collapse(d) {
-        //     if (d.children) {
-        //         d._children = d.children
-        //         d._children.forEach(collapse)
-        //         d.children = null
-        //     }
-        // }
         function collapseLevel(d) {
-            if (d.children && d.depth > 6) {
+            if (d.children && d.depth ==6) {
                 d._children = d.children;
                 d._children.forEach(collapseLevel);
                 d.children = null;
@@ -106,6 +95,7 @@
             // Normalize for fixed-depth.
             nodes.forEach(function (d) {
                 d.y = d.depth * 100
+
             });
 
             // ****************** Nodes section ***************************
@@ -126,24 +116,6 @@
                     return "translate(" + source.y0 + "," + source.x0 + ")";
                 })
                 .on('click', click);
-            // .on("dblclick",(d)=>{
-            //     if(d.depth ===6){
-            //         // lineFunction(d.data.coordinate
-            //         // svg.data([d.data.cordinate]).enter().append("path")
-            //         //     .attr("d", d => lineFunction(d))
-            //         //     .attr("stroke", "blue")
-            //         //     .attr("stroke-width", 2)
-            //         console.log("to be plot")
-            //     }
-            // })
-
-            // var lineFunction = d3.line()
-            //     .x(function (d) {
-            //         return (d[0]);
-            //     })
-            //     .y(function (d) {
-            //         return (d[1]);
-            //     })
 
             // Add Circle for the nodes
             nodeEnter.append('circle')
@@ -173,13 +145,6 @@
                         return d.data.name
                     };
                 });
-
-            // nodeEnter.append("image")
-            //     .attr("xlink:href", function(d) { return d.data.icon; })
-            //     .attr("x", "-12px")
-            //     .attr("y", "-12px")
-            //     .attr("width", "24px")
-            //     .attr("height", "24px");
 
             // UPDATE
             var nodeUpdate = nodeEnter.merge(node);
@@ -267,255 +232,121 @@
 
                 return path
             }
-
-            // Toggle children on click.
-            // function click(d) {
-            //     if (d.children) {
-            //         d._state = 0
-            //         d._children = d.children;
-            //         d.children = null;
-            //         if (d.depth ==6){console.log(d._state)}
-            //     } else {
-            //         d._state =1
-            //         d.children = d._children;
-            //         d._children = null;
-            //         if (d.depth ==6){console.log(d._state)}
-            //     }
-            //     update(d);
-            // }
             function click(d) {
+
                 // debugger
                 if(d._state===undefined){
                     d._state = -1;
                 }
                 d._state += 1;
                 d._state = d._state%2;
-                // console.log(d._state)
-                console.log(d.id)
                 if (d._state == 0) { // back the chromosome
-
-
-                    if (d.depth==6){
+                    if (d.depth==6){ //When depth ==6, it is impossible to have interiors
                         d._children = d.children;
-                        console.log(d);//15
                         d.children = null;
-                        // console.log(d)
-                        // d3.select('#n' + d.id).remove();
-                        console.log(this)
-                        d3.select(this).selectAll('circle').attr('visibility', 'hidden');
-                        d3.select(this).selectAll('text').style('fill-opacity', 1e-6)
-                        var coords = d.data.cordinate;
-                        xnode = d.x;
-                        ynode = d.y;
-                        coords.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
-                        bound.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
-                        console.log(d)
-                        var sanu = svg.append("g").attr("id", "group"+d.id)
-                        let poly =   sanu.append("path")
-
-                            .attr("class", "lineunit")
-                            .data([coords])
-                            .attr("d",  d => valueline(d))
-                            .attr("fill","blue")
-                            .attr("stroke", "black")
-                            .style("stroke-width","2px")
-                            .attr("opacity","0.3");
-                        let linebound =  sanu.append("path")
-                            .data([bound])
-                            .attr("class", "linebound")
-                            .attr("d", valueline)
-                            .attr("stroke", "black")
-                            .attr("fill", "none");
+                        var embe = this;
+                        plotExterior(embe,d,bound)
                     }
                     if (d.depth==5){
                         d._children = d.children;
-                        console.log(d);//15
                         d.children = null;
-                        // console.log(d)
-                        var coords = d.data.cordinate;
-                        xnode = d.x;
-                        ynode = d.y;
-                        coords.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
-                        bound.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
-                        console.log(coords)
-                        var sanu = svg.append("g").attr("id", "group"+d.id)
-                        let poly =   sanu.append("path")
-
-                            .attr("class", "lineunit")
-                            .data([coords])
-                            .attr("d",  d => valueline(d))
-                            .attr("fill","blue")
-                            .attr("stroke", "black")
-                            .style("stroke-width","2px")
-                            .attr("opacity","0.3");
-                        let linebound =  sanu.append("path")
-                            .data([bound])
-                            .attr("class", "linebound")
-                            .attr("d", valueline)
-                            .attr("stroke", "black")
-                            .attr("fill", "none");
+                        var embe = this
+                        plotExterior(embe,d,bound)
+                        let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                        Inner.forEach(function (e) {
+                            plotInterior(embe,e,d)
+                        })
                     }
                     if (d.depth==4){
                         d._children = d.children;
-                        // console.log(d.id);
                         d.children = null;
-                        // console.log(d)
-                        // console.log(d)
-                        var coords = d.data.cordinate;
-                        xnode = d.x;
-                        ynode = d.y;
-
-                        bound.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                            // console.log(typeof (d))
-                        });
-                        // console.log(coords)
-                        let Outer = coords.filter(d=>typeof(d[0])==="number")
-                        Outer.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
-
-
-                        // console.log(Outer)
-                        // console.log(Inner)
-                        var sanu = svg.append("g").attr("id", "group"+d.id)
-                        let poly =   sanu.append("path")
-
-                            .attr("class", "lineunit")
-                            .data([Outer])
-                            .attr("d",  d => valueline(d))
-                            .attr("fill","blue")
-                            .attr("stroke", "black")
-                            .style("stroke-width","2px")
-                            .attr("opacity","0.3");
-
-                        let Inner = coords.filter(d=>typeof(d[0])!=="number")
-                        if (Inner.length >0){
-                            Inner = Inner[0]
-                            Inner.forEach(function(d) {
-                                d.xnode =xnode
-                                d.ynode = ynode
-                            });
-                            let poly_in =   sanu.append("path")
-                                .attr("class", "lineunit")
-                                .data([Inner])
-                                .attr("d",  d => valueline(d))
-                                .attr("fill","white")
-                                .attr("stroke", "blue")
-                                .style("stroke-width","1px")
-
-                        }
-
-                        let linebound =  sanu.append("path")
-                            .data([bound])
-                            .attr("class", "linebound")
-                            .attr("d", valueline)
-                            .attr("stroke", "black")
-                            .attr("fill", "none");}
+                        var embe = this
+                        plotExterior(embe,d,bound)
+                        let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                        Inner.forEach(function (e) {
+                            plotInterior(embe,e,d)
+                        })
+                    }
                     if (d.depth==3){
                         d._children = d.children;
-                        // console.log(d.id);
                         d.children = null;
-                        // console.log(d)
-                        // console.log(d)
-                        var coords = d.data.cordinate;
-                        xnode = d.x;
-                        ynode = d.y;
+                        var embe = this
+                        plotExterior(embe,d,bound)
+                        let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                        Inner.forEach(function (e) {
+                            plotInterior(embe,e,d)
+                        })
 
-                        bound.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                            console.log(typeof (d))
-                        });
-                        // console.log(coords)
-                        let Outer = coords.filter(d=>typeof(d[0])==="number")
-                        Outer.forEach(function(d) {
-                            d.xnode =xnode
-                            d.ynode = ynode
-                        });
+                    }
 
-
-                        // console.log(Outer)
-                        // console.log(Inner)
-                        var sanu = svg.append("g").attr("id", "group"+d.id)
-                        let poly =   sanu.append("path")
-
-                            .attr("class", "lineunit")
-                            .data([Outer])
-                            .attr("d",  d => valueline(d))
-                            .attr("fill","blue")
-                            .attr("stroke", "black")
-                            .style("stroke-width","2px")
-                            .attr("opacity","0.3");
-
-                        let Inner = coords.filter(d=>typeof(d[0])!=="number")
-                        if (Inner.length >0){
-                            Inner = Inner[0]
-                            Inner.forEach(function(d) {
-                                d.xnode =xnode
-                                d.ynode = ynode
-                            });
-                            let poly_in =   sanu.append("path")
-                                .attr("class", "lineunit")
-                                .data([Inner])
-                                .attr("d",  d => valueline(d))
-                                .attr("fill","white")
-                                .attr("stroke", "blue")
-                                .style("stroke-width","1px")
-
-                        }
-
-                        let linebound =  sanu.append("path")
-                            .data([bound])
-                            .attr("class", "linebound")
-                            .attr("d", valueline)
-                            .attr("stroke", "black")
-                            .attr("fill", "none");}
-
-                } if (d._state == 1) { // open chromosome
+                }
+                if (d._state == 1) { // open chromosome
                     d.children = d._children;
                     d._children = null;
-                    if (d.depth==6 || d.depth==5 || d.depth ==4){
-                        d3.select('#group' + d.id).remove();
-                        // d3.select(this).selectAll('circle').style('fill-opacity', 1)
+                    if (d.depth==6 || d.depth==5 || d.depth ==4 || d.depth ==3){
+                        d3.select('#exter' + d.id).remove();
+                        d3.select('#inter' + d.id).remove();
+                        d3.select(this).selectAll('circle').attr('visibility', 'visible')
                         d3.select(this).selectAll('text').style('fill-opacity', 1)
                     }
-                    // d3.select(`path.linebound`).remove();
                 }
-                // if (d._state == 2) {
-                //     d._children = d.children;
-                //     d.children = null;
-                //     // d3.transition()
-                //     //     .duration(2000)
-                //     //     .ease(d3.easeLinear)
-                //
-                //
-                //
-                // } if (d._state == 3) {
-                //     d.children = d._children;
-                //     d._children = null;
-                //
-                //
-                // }
                 update(d);
 
             }
         }
     })
 
+
+    function plotExterior(embe,d,bound) {
+        console.log(d)
+        var coords = d.data.cordinate;
+        xnode = d.x;
+        ynode = d.y;
+
+        bound.forEach(function(d) {
+            d.xnode =xnode
+            d.ynode = ynode
+            // console.log(typeof (d))
+        });
+        // console.log(coords)
+        let Outer = coords.filter(d=>typeof(d[0])==="number")
+        Outer.forEach(function(d) {
+            d.xnode =xnode
+            d.ynode = ynode
+        });
+        d3.select(embe).selectAll('circle').attr('visibility', 'hidden');
+        d3.select(embe).selectAll('text').style('fill-opacity', 1e-6)
+        var sanu = d3.select(embe).append("g").attr("id", "exter" + d.id)
+        var poly = sanu.append("path")
+
+            .attr("class", "line_ext")
+            .data([Outer])
+            .attr("d", d => valueline(d))
+            .attr("fill", "blue")
+            .attr("stroke", "black")
+            .style("stroke-width", "2px")
+            .attr("opacity", "0.3");
+        let linebound = sanu.append("path")
+            .data([bound])
+            .attr("class", "linebound")
+            .attr("d", valueline)
+            .attr("stroke", "black")
+            .attr("fill", "none");
+    }
+    function plotInterior(embe,Inner,d){
+
+        Inner.forEach(function(d) {
+            d.xnode =xnode
+            d.ynode = ynode
+        });
+        var sanu1 = d3.select(embe).append("g").attr("id", "inter" + d.id)
+        let poly_in =   sanu1.append("path")
+            .attr("class", "line_int")
+            .data([Inner])
+            .attr("d",  d => valueline(d))
+            .attr("fill","white")
+            .attr("stroke", "blue")
+            .style("stroke-width","1px")
+    }
 </script>
 </body>
