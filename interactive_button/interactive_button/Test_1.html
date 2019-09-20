@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<style>
+
+    .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 3px;
+    }
+
+    .node text {
+        font: 12px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+    }
+
+</style>
+<!-- Add 2 buttons-->
+<button type="button" id="btnunion" >Union</button>
+<button type="button" id="btnoverlap">Overlap</button>
+
+<body>
+
+<!-- load the d3.js library -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    // var Plotting = function(plot){
+    //     if(plot == 'Overlap'){
+    //         console.log('embe Un')
+    //         return 'Overlap'
+    //     }
+    //     else
+    //     {
+    //         console.log('Sanu')
+    //         return 'Union'
+    //     }
+    // }
+    var layout ='Union';
+    var btnoverlap = document.getElementById('btnoverlap')
+    btnoverlap.addEventListener('click',function () {
+        // console.log("Going there")
+        layout = 'Overlap'
+    });
+
+    var btnunion = document.getElementById('btnunion')
+    btnunion.addEventListener('click',function () {
+        layout = 'Union'
+    });
+
+
+
+    var valueline = d3.line()
+
+        .x(function(d) {
+            // console.log(d)
+            return ((d[0]*2));})
+        .y(function(d) { return ((d[1]*2));})
+    var margin = {top: 20, right: 90, bottom: 30, left: 90},
+        width = 1500 - margin.left - margin.right,
+        height = 750 - margin.top - margin.bottom;
+    var myColor = d3.scaleOrdinal(d3.schemeCategory10);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate("
+            + margin.left + "," + margin.top + ")");
+
+    var treeData
+    d3.json("data/tree_test_full.json", treeraw => {
+
+
+        treeData = treeraw[0][0];
+        // console.log(treeData)
+        // Set the dimensions and margins of the diagram
+
+
+        var i = 0,
+            duration = 750,
+            root;
+
+        // declares a tree layout and assigns the size
+        var treemap = d3.tree().size([height, width])
+            // .separation(function(a,b){
+            //     return (a.parent == b.parent ? 1 : 2)
+            // });// make separation accessor 1
+        ;
+
+        // Assigns parent, children, height, depth
+        root = d3.hierarchy(treeData, function (d) {
+            return d.children;
+        });
+        root.x0 = height / 2;
+        root.y0 = 0;
+
+        // Collapse after the second level (L)
+        root.children.forEach(collapseLevel);
+        // console.log(root)
+        rootraw = root
+        update(root);
+
+        function collapseLevel(d) {
+            if (d.children && d.depth>6) {
+                d._children = d.children;
+                d._children.forEach(collapseLevel);
+                d.children = null;
+            } else if (d.children) {
+                d.children.forEach(collapseLevel);
+            }
+        }
+        var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+        function update(source) {
+
+            // Assigns the x and y position for the nodes
+            var treeData = treemap(root);
+
+            // Compute the new tree layout.
+            var nodes = treeData.descendants(),
+                links = treeData.descendants().slice(1);
+            // console.log(nodes)
+            // Normalize for fixed-depth.
+            nodes.forEach(function (d) {
+                d.y = d.depth * 100
+                if (d.depth ==6){
+                    if (d.id%2==0){
+                        d.x = d.x-10
+                    }
+                    else{
+                        d.x = d.x+10
+                    }
+                }
+
+            });
+            console.log(nodes)
+
+            // ****************** Nodes section ***************************
+
+            // Update the nodes...
+            var node = svg.selectAll('g.node')
+                .data(nodes, function (d) {
+                    return d.id || (d.id = ++i);
+                });
+
+            // Enter any new modes at the parent's previous position.
+            var nodeEnter = node.enter().append('g')
+                .attr('class', 'node')
+                .attr('id',(d,i)=>{
+                    return `g${i}`
+                })
+                .attr("transform", function (d) {
+                    return "translate(" + source.y0 + "," + source.x0 + ")";
+                })
+                .on('click', click);
+
+            // Add Circle for the nodes
+            nodeEnter.append('circle')
+                .attr('class', 'node')
+                .attr('id',(d,i)=>{
+                    return `n${i}`
+                })
+                .attr('r', 1e-6)
+                .style("fill", function (d) {
+                    return d._children ? "lightsteelblue" : "#fff";
+                });
+
+            // Add labels for the nodes
+            nodeEnter.append('text')
+                .attr("dy", ".35em")
+                .attr("x", function (d) {
+                    return d.children || d._children ? -13 : 13;
+                })
+                .attr("text-anchor", function (d) {
+                    return d.children || d._children ? "end" : "start";
+                })
+                .text(function (d) {
+                    if (d.depth >6){
+                        return  d3.format('.2f')(d.data.name)
+                    }
+                    else {
+                        return d.data.name
+                    };
+                });
+
+            // UPDATE
+            var nodeUpdate = nodeEnter.merge(node);
+
+            // Transition to the proper position for the node
+            nodeUpdate.transition()
+                .duration(duration)
+                .attr("transform", function (d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                });
+
+            // Update the node attributes and style
+            nodeUpdate.select('circle.node')
+                .attr('r', 10)
+                .style("fill", function (d) {
+                    return d._children ? "lightsteelblue" : "#fff";
+                })
+                .attr('cursor', 'pointer');
+
+
+            // Remove any exiting nodes
+            var nodeExit = node.exit().transition()
+                .duration(duration)
+                .attr("transform", function (d) {
+                    return "translate(" + source.y + "," + source.x + ")";
+                })
+                .remove();
+
+            // On exit reduce the node circles size to 0
+            nodeExit.select('circle')
+                .attr('r', 1e-6);
+
+            // On exit reduce the opacity of text labels
+            nodeExit.select('text')
+                .style('fill-opacity', 1e-6);
+
+            // ****************** links section ***************************
+
+            // Update the links...
+            var link = svg.selectAll('path.link')
+                .data(links, function (d) {
+                    return d.id;
+                });
+
+            // Enter any new links at the parent's previous position.
+            var linkEnter = link.enter().insert('path', "g")
+                .attr("class", "link")
+                .attr('d', function (d) {
+                    var o = {x: source.x0, y: source.y0}
+                    return diagonal(o, o)
+                });
+
+            // UPDATE
+            var linkUpdate = linkEnter.merge(link);
+
+            // Transition back to the parent element position
+            linkUpdate.transition()
+                .duration(duration)
+                .attr('d', function (d) {
+                    return diagonal(d, d.parent)
+                });
+
+            // Remove any exiting links
+            var linkExit = link.exit().transition()
+                .duration(duration)
+                .attr('d', function (d) {
+                    var o = {x: source.x, y: source.y}
+                    return diagonal(o, o)
+                })
+                .remove();
+
+            // Store the old positions for transition.
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+            // Creates a curved (diagonal) path from parent to the child nodes
+            function diagonal(s, d) {
+
+                path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+              ${(s.y + d.y) / 2} ${d.x},
+              ${d.y} ${d.x}`
+
+                return path
+            }
+            function click(d) {
+
+                // debugger
+                if(d._state===undefined){
+                    d._state = -1;
+                }
+                d._state += 1;
+                d._state = d._state%4;
+                if (d._state == 0 || d._state ==2) { // back the chromosome
+                    if (d.depth==6){ //When depth ==6, it is impossible to have interiors
+                        console.log(d.id)
+                        d._children = d.children;
+                        d.children = null;
+                        var embe = this;
+                        plotExterior(embe,d,bound)
+                    }
+                    if (d.depth==5){
+                        d._children = d.children;
+                        d.children = null;
+                        // console.log(d.data.children)
+
+                        var embe = this
+
+                        a = layout;
+                        console.log(a)
+
+                        if (a == 'Union'){
+                            plotExterior(embe,d,bound)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                        else{
+                            aidi = d.id;
+                            // console.log(d.data.children[0].cordinate)
+                            Ext1 = d.data.children[0].cordinate;
+                            plotExterior_child(embe, Ext1, bound,aidi)
+                            Ext2 = d.data.children[1].cordinate;
+                            plotExterior_child(embe, Ext2, bound,aidi)
+                        }
+                    }
+                    if (d.depth==4){
+                        d._children = d.children;
+                        d.children = null;
+                        var embe = this
+
+                        // a = Plotting(plot)
+                        // console.log(a)
+                        // a = 'Union'
+                        a = layout;
+                        if (a == 'Union'){
+                            plotExterior(embe,d,bound)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                        else{
+                            aidi = d.id;
+                            // console.log(d.data.children[0].cordinate)
+                            Ext1 = d.data.children[0].cordinate;
+                            plotExterior_child(embe, Ext1, bound,aidi)
+                            Ext2 = d.data.children[1].cordinate;
+                            plotExterior_child(embe, Ext2, bound,aidi)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                    }
+                    if (d.depth==3){
+                        d._children = d.children;
+                        d.children = null;
+                        var embe = this
+
+                        // a = Plotting(plot)
+                        // console.log(a)
+                        a = layout;
+                        if (a == 'Union'){
+                            plotExterior(embe,d,bound)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                        else{
+                            aidi = d.id;
+                            // console.log(d.data.children[0].cordinate)
+                            Ext1 = d.data.children[0].cordinate;
+                            plotExterior_child(embe, Ext1, bound,aidi)
+                            Ext2 = d.data.children[1].cordinate;
+                            plotExterior_child(embe, Ext2, bound,aidi)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+
+                    }
+
+                }
+                if (d._state == 1 || d._state ==3) { // open chromosome
+                    d.children = d._children;
+                    d._children = null;
+                    if (d.depth==6 || d.depth==5 || d.depth ==4 || d.depth ==3){
+                        d3.select('#exter' + d.id).remove();
+                        d3.select('#inter' + d.id).remove();
+                        d3.select(this).selectAll('circle').attr('visibility', 'visible')
+                        d3.select(this).selectAll('text').style('fill-opacity', 1)
+                    }
+                }
+                update(d);
+
+            }
+        }
+    })
+    // Function to draw the Interior and Exterior for the polygons
+    function plotExterior(embe,d,bound) {
+        // console.log(d)
+        var coords = d.data.cordinate;
+        xnode = d.x;
+        ynode = d.y;
+        var ai_di = d.id
+        bound.forEach(function(d) {
+            d.xnode =xnode
+            d.ynode = ynode
+            // console.log(typeof (d))
+        });
+        // console.log(coords)
+        let Outer = coords.filter(d=>typeof(d[0])==="number")
+        // Outer.forEach(function(d) {
+        //     d.color = ai_di*Math.random()*20
+        //
+        // });
+        // console.log(Outer)
+        d3.select(embe).selectAll('circle').attr('visibility', 'hidden');
+        d3.select(embe).selectAll('text').style('fill-opacity', 1e-6)
+        var sanu = d3.select(embe).append("g").attr("id", "exter" + d.id)
+        var poly = sanu.append("path")
+
+            .attr("class", "line_ext")
+            .data([Outer])
+            .attr("d", d => valueline(d))
+            .attr("fill", function (d) {
+                return myColor(ai_di)
+                console.log(myColor(ai_di))
+
+
+            })
+            .attr("stroke", "black")
+            .style("stroke-width", "2px")
+            .attr("opacity", "0.3");
+        let linebound = sanu.append("path")
+            .data([bound])
+            .attr("class", "linebound")
+            .attr("d", valueline)
+            .attr("stroke", "black")
+            .attr("fill", "none");
+    }
+    function plotInterior(embe,Inner,d){
+
+        Inner.forEach(function(d) {
+            // d.xnode =xnode
+            // d.ynode = ynode
+        });
+        var sanu1 = d3.select(embe).append("g").attr("id", "inter" + d.id)
+        let poly_in =   sanu1.append("path")
+            .attr("class", "line_int")
+            .data([Inner])
+            .attr("d",  d => valueline(d))
+            .attr("fill","white")
+            .attr("stroke", "blue")
+            .style("stroke-width","1px")
+    }
+    function plotExterior_child(embe, Ext, bound,aidi){
+        d3.select(embe).selectAll('circle').attr('visibility', 'hidden');
+        d3.select(embe).selectAll('text').style('fill-opacity', 1e-6)
+        var sanu = d3.select(embe).append("g").attr("id", "exter" + aidi)
+        var poly = sanu.append("path")
+
+            .attr("class", "line_ext")
+            .data([Ext])
+            .attr("d", d => valueline(d))
+            .attr("fill", function (d) {
+                return myColor(aidi)
+                console.log(myColor(ai_di))
+
+
+            })
+            .attr("stroke", "black")
+            .style("stroke-width", "2px")
+            .attr("opacity", "0.3");
+        let linebound = sanu.append("path")
+            .data([bound])
+            .attr("class", "linebound")
+            .attr("d", valueline)
+            .attr("stroke", "black")
+            .attr("fill", "none");
+    }
+
+</script>
+</body>
