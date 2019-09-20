@@ -19,12 +19,40 @@
     }
 
 </style>
+<!-- Add 2 buttons-->
+<button type="button" id="btnunion" >Union</button>
+<button type="button" id="btnoverlap">Overlap</button>
 
 <body>
 
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
+    // var Plotting = function(plot){
+    //     if(plot == 'Overlap'){
+    //         console.log('embe Un')
+    //         return 'Overlap'
+    //     }
+    //     else
+    //     {
+    //         console.log('Sanu')
+    //         return 'Union'
+    //     }
+    // }
+    var layout ='Union';
+    var btnoverlap = document.getElementById('btnoverlap')
+    btnoverlap.addEventListener('click',function () {
+        // console.log("Going there")
+        layout = 'Overlap'
+    });
+
+    var btnunion = document.getElementById('btnunion')
+    btnunion.addEventListener('click',function () {
+        layout = 'Union'
+    });
+
+
+
     var valueline = d3.line()
 
         .x(function(d) {
@@ -58,7 +86,9 @@
 
         // declares a tree layout and assigns the size
         var treemap = d3.tree().size([height, width])
-            .separation(function(a, b) { return a.parent === b.parent ? 1 : 2; })
+            // .separation(function(a,b){
+            //     return (a.parent == b.parent ? 1 : 2)
+            // });// make separation accessor 1
         ;
 
         // Assigns parent, children, height, depth
@@ -75,7 +105,7 @@
         update(root);
 
         function collapseLevel(d) {
-            if (d.children && d.depth ==6) {
+            if (d.children && d.depth>6) {
                 d._children = d.children;
                 d._children.forEach(collapseLevel);
                 d.children = null;
@@ -94,10 +124,8 @@
                 links = treeData.descendants().slice(1);
             // console.log(nodes)
             // Normalize for fixed-depth.
-            nodes.forEach(function (d) {
-                d.y = d.depth * 100
 
-            });
+            console.log(nodes)
 
             // ****************** Nodes section ***************************
 
@@ -107,6 +135,18 @@
                     return d.id || (d.id = ++i);
                 });
 
+            nodes.forEach(function (d) {
+                d.y = d.depth * 100
+                if (d.depth ==6){
+                    if (d.id%2==0){
+                        d.x = d.x -(d.id%2)*10
+                    }
+                    else{
+                        d.x = d.x +(d.id%2)*10
+                    }
+                }
+
+            });
             // Enter any new modes at the parent's previous position.
             var nodeEnter = node.enter().append('g')
                 .attr('class', 'node')
@@ -243,6 +283,7 @@
                 d._state = d._state%4;
                 if (d._state == 0 || d._state ==2) { // back the chromosome
                     if (d.depth==6){ //When depth ==6, it is impossible to have interiors
+                        console.log(d.id)
                         d._children = d.children;
                         d.children = null;
                         var embe = this;
@@ -251,33 +292,85 @@
                     if (d.depth==5){
                         d._children = d.children;
                         d.children = null;
-                        console.log(d)
+                        // console.log(d.data.children)
+
                         var embe = this
-                        plotExterior(embe,d,bound)
-                        let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
-                        Inner.forEach(function (e) {
-                            plotInterior(embe,e,d)
-                        })
+
+                        a = layout;
+                        console.log(a)
+
+                        if (a == 'Union'){
+                            plotExterior(embe,d,bound)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                        else{
+                            aidi = d.id;
+                            // console.log(d.data.children[0].cordinate)
+                            Ext1 = d.data.children[0].cordinate;
+                            plotExterior_child(embe, Ext1, bound,aidi)
+                            Ext2 = d.data.children[1].cordinate;
+                            plotExterior_child(embe, Ext2, bound,aidi)
+                        }
                     }
                     if (d.depth==4){
                         d._children = d.children;
                         d.children = null;
                         var embe = this
-                        plotExterior(embe,d,bound)
-                        let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
-                        Inner.forEach(function (e) {
-                            plotInterior(embe,e,d)
-                        })
+
+                        // a = Plotting(plot)
+                        // console.log(a)
+                        // a = 'Union'
+                        a = layout;
+                        if (a == 'Union'){
+                            plotExterior(embe,d,bound)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                        else{
+                            aidi = d.id;
+                            // console.log(d.data.children[0].cordinate)
+                            Ext1 = d.data.children[0].cordinate;
+                            plotExterior_child(embe, Ext1, bound,aidi)
+                            Ext2 = d.data.children[1].cordinate;
+                            plotExterior_child(embe, Ext2, bound,aidi)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
                     }
                     if (d.depth==3){
                         d._children = d.children;
                         d.children = null;
                         var embe = this
-                        plotExterior(embe,d,bound)
-                        let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
-                        Inner.forEach(function (e) {
-                            plotInterior(embe,e,d)
-                        })
+
+                        // a = Plotting(plot)
+                        // console.log(a)
+                        a = layout;
+                        if (a == 'Union'){
+                            plotExterior(embe,d,bound)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
+                        else{
+                            aidi = d.id;
+                            // console.log(d.data.children[0].cordinate)
+                            Ext1 = d.data.children[0].cordinate;
+                            plotExterior_child(embe, Ext1, bound,aidi)
+                            Ext2 = d.data.children[1].cordinate;
+                            plotExterior_child(embe, Ext2, bound,aidi)
+                            let Inner = d.data.cordinate.filter(d=>typeof(d[0])!=="number")
+                            Inner.forEach(function (e) {
+                                plotInterior(embe,e,d)
+                            })
+                        }
 
                     }
 
@@ -297,8 +390,7 @@
             }
         }
     })
-
-
+    // Function to draw the Interior and Exterior for the polygons
     function plotExterior(embe,d,bound) {
         // console.log(d)
         var coords = d.data.cordinate;
@@ -344,8 +436,8 @@
     function plotInterior(embe,Inner,d){
 
         Inner.forEach(function(d) {
-            d.xnode =xnode
-            d.ynode = ynode
+            // d.xnode =xnode
+            // d.ynode = ynode
         });
         var sanu1 = d3.select(embe).append("g").attr("id", "inter" + d.id)
         let poly_in =   sanu1.append("path")
@@ -356,5 +448,31 @@
             .attr("stroke", "blue")
             .style("stroke-width","1px")
     }
+    function plotExterior_child(embe, Ext, bound,aidi){
+        d3.select(embe).selectAll('circle').attr('visibility', 'hidden');
+        d3.select(embe).selectAll('text').style('fill-opacity', 1e-6)
+        var sanu = d3.select(embe).append("g").attr("id", "exter" + aidi)
+        var poly = sanu.append("path")
+
+            .attr("class", "line_ext")
+            .data([Ext])
+            .attr("d", d => valueline(d))
+            .attr("fill", function (d) {
+                return myColor(aidi)
+                console.log(myColor(ai_di))
+
+
+            })
+            .attr("stroke", "black")
+            .style("stroke-width", "2px")
+            .attr("opacity", "0.3");
+        let linebound = sanu.append("path")
+            .data([bound])
+            .attr("class", "linebound")
+            .attr("d", valueline)
+            .attr("stroke", "black")
+            .attr("fill", "none");
+    }
+
 </script>
 </body>
