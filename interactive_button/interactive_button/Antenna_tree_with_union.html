@@ -28,17 +28,6 @@
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
-    // var Plotting = function(plot){
-    //     if(plot == 'Overlap'){
-    //         console.log('embe Un')
-    //         return 'Overlap'
-    //     }
-    //     else
-    //     {
-    //         console.log('Sanu')
-    //         return 'Union'
-    //     }
-    // }
     var layout ='Union';
     var btnoverlap = document.getElementById('btnoverlap')
     btnoverlap.addEventListener('click',function () {
@@ -124,10 +113,7 @@
             // Compute the new tree layout.
             var nodes = treeData.descendants(),
                 links = treeData.descendants().slice(1);
-            // console.log(nodes)
-            // Normalize for fixed-depth.
 
-            // console.log(nodes)
 
             // ****************** Nodes section ***************************
 
@@ -139,17 +125,8 @@
 
             nodes.forEach(function (d) {
                 d.y = d.depth * 100
-                // if (d.depth ==6){
-                //     if (d.id%2==0){
-                //         d.x = d.x -(d.id%2)*10
-                //     }
-                //     else{
-                //         d.x = d.x +(d.id%2)*10
-                //     }
-                // }
 
             });
-            // console.log(node)
             // Enter any new modes at the parent's previous position.
             var nodeEnter = node.enter().append('g')
                 .attr('class', 'node')
@@ -210,9 +187,7 @@
                     }
                 }
                 if (d.depth ==3 && d.parent.data.name !== "addsub3"){
-                    //     // console.log(d.id)
-                    // console.log(d)
-                    // debugger
+
                     let coords = d.data.cordinate;
                     let ai_di = d.id
                     // console.log(ai_di)
@@ -260,16 +235,7 @@
                 }
 
             })
-            // // Add Circle for the nodes
-            // nodeEnter.append('circle')
-            //     .attr('class', 'node')
-            //     .attr('id',(d,i)=>{
-            //         return `n${i}`
-            //     })
-            //     .attr('r', 1e-6)
-            //     .style("fill", function (d) {
-            //         return d._children ? "lightsteelblue" : "#fff";
-            //     });
+
 
             // Add labels for the nodes
             nodeEnter.append('text')
@@ -364,12 +330,7 @@
                 }
 
             });
-            // Update the node attributes and style
-            ;
-            //
-            // nodeUpdate.select('circle.node').attr("visibility","hidden")
-            // console.log(nodeUpdate)
-            // debugger
+
 
             // Remove any exiting nodes
             var nodeExit = node.exit().transition()
@@ -513,24 +474,7 @@
     var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
     // Function to draw the Interior and Exterior for the polygons
     function plotExterior_small(Outer, theElm,ai_di) {
-        // // console.log(d)
-        // var coords = d.data.cordinate;
-        // xnode = d.x;
-        // ynode = d.y;
-        // var ai_di = d.id
-        // bound.forEach(function(d) {
-        //     d.xnode =xnode
-        //     d.ynode = ynode
-        //     // console.log(typeof (d))
-        // });
-        // // console.log(coords)
-        // let Outer = coords.filter(d=>typeof(d[0])==="number")
-        // Outer.forEach(function(d) {
-        //     d.color = ai_di*Math.random()*20
-        //
-        // });
-        // console.log(Outer)
-        var sanu = theElm.append("g").attr("id","exter"+ai_di)
+        var sanu = theElm.append("g").attr("id","exter_small"+ai_di)
         var poly = sanu.append("path")
             .attr("class", "line_ext")
             .data([Outer])
