@@ -102,7 +102,9 @@
             let gen = +(selectedOption.replace("Gen", ""))
             return gen
         })
-        // console.log(gen)
+        var sel = document.getElementById("#selectButton").property("value")
+
+        console.log(sel)
         var pop = d3.select("#selectButton1").on("change", function(d) {
             // recover the option that has been chosen
             var selectedOption1 = d3.select(this).property("value")
@@ -117,7 +119,7 @@
         const num_pop = 10;
 
 
-        let order = 8
+        let order = 6
 
         var index = 0
         // console.log(treeraw)
