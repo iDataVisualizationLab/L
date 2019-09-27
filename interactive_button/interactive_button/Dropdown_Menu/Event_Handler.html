@@ -1,0 +1,71 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <script src="https://d3js.org/d3.v4.js"></script>-->
+<!--    <title>Title</title>-->
+<!--    <select id="Generation">-->
+<!--        <option value=1>Gen1</option>-->
+<!--        <option value=2>Gen2</option>-->
+<!--&lt;!&ndash;        <option value="third">Third</option>&ndash;&gt;-->
+<!--&lt;!&ndash;        <option value="forth">Forth</option>&ndash;&gt;-->
+<!--    </select>-->
+<!--    <select id="Population">-->
+<!--        <option value=1>Pop1</option>-->
+<!--        <option value=2>Pop2</option>-->
+<!--        &lt;!&ndash;        <option value="third">Third</option>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <option value="forth">Forth</option>&ndash;&gt;-->
+<!--    </select>-->
+
+<!--    <p id="selected-gen"></p>-->
+<!--    <p id="selected-pop"></p>-->
+<!--</head>-->
+<!--<body>-->
+<!--<script>-->
+<!--    // d3.select("#selected-dropdown").text("first");-->
+
+<!--    d3.select("select")-->
+<!--        .on("change",function(d){-->
+<!--            var selected1 = +d3.select("#Generation").node().value;-->
+<!--            console.log(selected1);-->
+<!--            d3.select("#selected-gen").text(selected1);-->
+<!--            var selected2 = +d3.select("#Population").node().value;-->
+<!--            console.log(selected2);-->
+<!--            d3.select("#selected-pop").text(selected2);-->
+<!--        })-->
+<!--</script>-->
+
+<!--    </body>-->
+<!--</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dropdown Example</title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/'-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<div class='dropdown'>
+    <div class='title pointerCursor'>Select an option <i class="fa fa-angle-right"></i></div>
+
+    <div class='menu pointerCursor hide'>
+        <div class='option' id='option1'>Option 1</div>
+        <div class='option' id='option2'>Option 2</div>
+        <div class='option' id='option3'>Option 3</div>
+        <div class='option' id='option4'>Option 4</div>
+    </div>
+
+</div>
+<span id='result'>The result is: </span>
+<!--<script>-->
+<!--    ...-->
+<!--// </script>-->
+</body>
+</html>

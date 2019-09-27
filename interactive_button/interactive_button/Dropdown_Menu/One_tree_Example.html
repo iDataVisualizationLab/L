@@ -40,8 +40,6 @@
         layout = 'Union'
     });
 
-
-
     var valueline = d3.line()
 
         .x(function(d) {return ((d[0]*2));})
@@ -67,9 +65,10 @@
     ;
 
     var treeData
-    d3.json("tree_test_full.json", treeraw => {
+    let coord_x = null;
+    d3.json("Tree10.json", treeraw => {
 
-
+        var index = 0
         treeData = treeraw[0][0];
         // console.log(treeData)
         // Set the dimensions and margins of the diagram
@@ -80,12 +79,8 @@
             root;
 
         // declares a tree layout and assigns the size
-        var treemap = d3.tree().size([height, width]).separation((a, b) => (a.parent == b.parent ? 1 :2))
-        // treemap.separation([separation])
-
-            // .separation(function(a,b){
-            //     return (a.parent == b.parent ? 1 : 2)
-            // });// make separation accessor 1
+        var treemap = d3.tree().size([height, width])
+            // .separation1((a, b) => (a.parent == b.parent ? 1 :2))
         ;
 
         // Assigns parent, children, height, depth
@@ -120,6 +115,16 @@
             var nodes = treeData.descendants(),
                 links = treeData.descendants().slice(1);
 
+            // nodes.forEach((n,i) => n.id = i);
+            // let mid6 = nodes.filter(d => d.depth==6)
+            // if (coord_x===null){
+            //     coord_x = []
+            //     mid6.forEach(function (mid6){
+            //         coord_x[mid6.id] = mid6.x;
+            //     })
+            //     console.log(coord_x)
+            // }
+
 
             // ****************** Nodes section ***************************
 
@@ -131,7 +136,9 @@
 
             nodes.forEach(function (d) {
                 d.y = d.depth * 100
-
+                // if ( d.depth ==6){
+                //     d.x = coord_x[d.id];
+                // }
             });
             // Enter any new modes at the parent's previous position.
             var nodeEnter = node.enter().append('g')
@@ -162,6 +169,7 @@
                     //     // console.log(d.id)
                     // console.log(d)
                     // debugger
+
                     let coords = d.data.cordinate;
                     let ai_di = d.depth
                     // console.log(ai_di)
@@ -277,9 +285,14 @@
                 // console.log(d)
                 if (d.depth ==6){
                     //     // console.log(d.id)
+
+
                     let ai_di = d.depth
+                    d3.select('#exter' + d.id).remove();
+                    d3.select('#inter' + d.id).remove();
                     let coords = d.data.cordinate;
                     let Outer = coords.filter(d=>typeof(d[0])==="number")
+                    console.log(d.x)
                     plotExterior(Outer, theElm,ai_di)
 
                 }
@@ -304,9 +317,18 @@
                     //     // console.log(d.id)
                     // console.log(d)
                     // debugger
+                    // console.log(d)
                     let coords = d.data.cordinate;
                     let ai_di = d.depth
+                    let coax = d.data.coax
+                    // console.log(coax)
                     // console.log(ai_di)
+                    let sanu = theElm.append("g").attr("id","exter"+ai_di)
+                    sanu.append("circle")
+                        .attr("r",1)
+                        .attr("cx", coax[0]*2)
+                        .attr("cy", coax[1]*2)
+                        .attr("fill", "black")
                     if(layout =='Union'){
                         let Outer = coords.filter(d=>typeof(d[0])==="number")
                         plotExterior(Outer, theElm,ai_di)
@@ -350,7 +372,7 @@
             nodeExit._groups[0].forEach(n => {
                 let theElm = d3.select(n);
                 let d = theElm.datum()
-                console.log(d)
+                // console.log(d)
 
                 if (d.depth ==6){
                     //     // console.log(d.id)
@@ -383,6 +405,7 @@
                     console.log(d)
                     // debugger
                     let coords = d.data.cordinate;
+
                     let ai_di = d.depth
                     // console.log(ai_di)
                     if(layout =='Union'){
@@ -473,8 +496,12 @@
                     d.children = d._children;
                     d._children = null;
                 }
-                update(d);
+               update(d)
             }
+
+                // index = index +1
+                // console.log(index)
+
         }
     })
     var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
@@ -536,16 +563,16 @@
             .attr("stroke", "blue")
             .style("stroke-width","1px")
     }
-    //Redraw for zoom
-    function redraw() {
-        //console.log("here", d3.event.translate, d3.event.scale);
-        svg.attr("transform",
-            "translate(" + d3.event.translate + ")"
-            + " scale(" + d3.event.scale + ")");
-    }
-    function separation(a, b) {
-        return a.parent == b.parent ? 1 : 3;
-    }
+    // //Redraw for zoom
+    // function redraw() {
+    //     //console.log("here", d3.event.translate, d3.event.scale);
+    //     svg.attr("transform",
+    //         "translate(" + d3.event.translate + ")"
+    //         + " scale(" + d3.event.scale + ")");
+    // }
+    // function separation1(a, b) {
+    //     return a.parent == b.parent ? 1 : 3;
+    // }
 
 </script>
 </body>
