@@ -102,17 +102,18 @@
         .append('option')
         .text(function (d) { return d; }) // text showed in the menu
         .attr("value", function (d) { return d; }) // corresponding value returned by the button
-    var gen = d3.select("#selectButton").on("click", function(d) {
-        // recover the option that has been chosen
-        var selectedOption = d3.select(this).property("value")
-        // console.log(typeof (selectedOption))
-        let gen1 = +(selectedOption.replace("Gen", ""))
-        return gen1
-    })
-    // var sel = document.getElementById("#selectButton").property("value")
+    // var gen = d3.select("#selectButton").on("click", function(d) {
+    //     // recover the option that has been chosen
+    //     var selectedOption = d3.select(this).property("value")
+    //     // console.log(typeof (selectedOption))
+    //     let gen1 = +(selectedOption.replace("Gen", ""))
+    //     return gen1
+    // })
+    // // var sel = document.getElementById("#selectButton").property("value")
 
 
     d3.json("full_gen_1.json", treeraw => {
+        console.log(treeraw)
 
         const num_gen = 20;
         const num_pop = 10;
@@ -122,8 +123,11 @@
         d3.select("#selectButton1").on("change", function(d) {
             let order = +(allGroup1[this.selectedIndex].replace("Pop", "")) -1;
             // d3.select("#Tree").remove();
+            // d3.select("svg").remove();
+            // svg.exit.remove()
             PlotTree(order);
         });
+
         document.getElementById("selectButton1").dispatchEvent(new Event('change'));
 
 
@@ -137,6 +141,7 @@
 
 
         function PlotTree(Uncon){
+            svg.selectAll("*").remove()
             var i = 0,
                 duration = 750,
                 root;
@@ -411,7 +416,7 @@
                             })
                             .attr('cursor', 'pointer')
                     }
-                    if (d.depth ==3 && d.parent.data.name === "addsub3"){
+                    if (d.name !=="Lsubtree7" || d.name !=="Usubtree9" || d.parent.data.name === "addsub3" || d.name !==union2){
                         theElm.select('circle.node')
                             .attr('r', 10)
                             .style("fill", function (d) {
