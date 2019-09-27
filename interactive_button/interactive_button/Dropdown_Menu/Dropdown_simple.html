@@ -51,7 +51,7 @@
             .append('option')
             .text(function (d) { return d; }) // text showed in the menu
             .attr("value", function (d) { return d; }) // corresponding value returned by the button
-    var gen = d3.select("#selectButton").on("change", function(d) {
+    const gen = d3.select("#selectButton").on("change", function(d) {
         // recover the option that has been chosen
         var selectedOption = d3.select(this).property("value")
         // console.log(typeof (selectedOption))
@@ -59,7 +59,7 @@
         return gen
     })
     // console.log(gen)
-    var pop = d3.select("#selectButton1").on("change", function(d) {
+    const pop = d3.select("#selectButton1").on("change", function(d) {
         // recover the option that has been chosen
         var selectedOption1 = d3.select(this).property("value")
         console.log(selectedOption1)
@@ -67,7 +67,8 @@
         return pop
     })
 
-
+    console.log(gen)
+    console.log(pop)
 
 
 </script>

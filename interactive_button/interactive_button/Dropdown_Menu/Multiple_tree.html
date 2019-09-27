@@ -31,11 +31,19 @@
 
 <button type="button" id="btnunion" >Union</button>
 <button type="button" id="btnoverlap">Overlap</button>
-
+<div id="Tree"></div>
 <body>
 
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    function Event( event, params ) {
+        params = params || { bubbles: false, cancelable: false, detail: undefined };
+        var evt = document.createEvent( 'CustomEvent' );
+        evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+        return evt;
+    }
+</script>
 <script>
     var layout ='Union';
     var btnoverlap = document.getElementById('btnoverlap')
@@ -62,7 +70,7 @@
         height = 750 - margin.top - margin.bottom;
     var myColor = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("#Tree").append("svg")
             .attr("width", width + margin.right + margin.left)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -75,61 +83,58 @@
 
     var treeData
     let coord_x = null;
+    var allGroup = ["Gen1", "Gen2"];
+    var allGroup1 = ["Pop1", "Pop2","Pop3", "Pop4","Pop5", "Pop6","Pop7", "Pop8"];
+
+    // add the options to the button
+    d3.select("#selectButton")
+        .selectAll('myOptions')
+        .data(allGroup)
+        .enter()
+        .append('option')
+        .text(function (d) { return d; }) // text showed in the menu
+        .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+    d3.select("#selectButton1")
+        .selectAll('myOptions')
+        .data(allGroup1)
+        .enter()
+        .append('option')
+        .text(function (d) { return d; }) // text showed in the menu
+        .attr("value", function (d) { return d; }) // corresponding value returned by the button
+    var gen = d3.select("#selectButton").on("click", function(d) {
+        // recover the option that has been chosen
+        var selectedOption = d3.select(this).property("value")
+        // console.log(typeof (selectedOption))
+        let gen1 = +(selectedOption.replace("Gen", ""))
+        return gen1
+    })
+    // var sel = document.getElementById("#selectButton").property("value")
+
+
     d3.json("full_gen_1.json", treeraw => {
-        var allGroup = ["Gen1", "Gen2"];
-        var allGroup1 = ["Pop1", "Pop2","Pop3", "Pop4","Pop5", "Pop6","Pop7", "Pop8"];
 
-        // add the options to the button
-        d3.select("#selectButton")
-            .selectAll('myOptions')
-            .data(allGroup)
-            .enter()
-            .append('option')
-            .text(function (d) { return d; }) // text showed in the menu
-            .attr("value", function (d) { return d; }) // corresponding value returned by the button
-
-        d3.select("#selectButton1")
-            .selectAll('myOptions')
-            .data(allGroup1)
-            .enter()
-            .append('option')
-            .text(function (d) { return d; }) // text showed in the menu
-            .attr("value", function (d) { return d; }) // corresponding value returned by the button
-        var gen = d3.select("#selectButton").on("change", function(d) {
-            // recover the option that has been chosen
-            var selectedOption = d3.select(this).property("value")
-            // console.log(typeof (selectedOption))
-            let gen = +(selectedOption.replace("Gen", ""))
-            return gen
-        })
-        var sel = document.getElementById("#selectButton").property("value")
-
-        console.log(sel)
-        var pop = d3.select("#selectButton1").on("change", function(d) {
-            // recover the option that has been chosen
-            var selectedOption1 = d3.select(this).property("value")
-            // console.log(selectedOption1)
-            let pop = +(selectedOption1.replace("Pop", ""))
-            return pop
-        })
-
-        console.log(gen)
-        console.log(pop)
         const num_gen = 20;
         const num_pop = 10;
 
 
-        let order = 6
+        // console.log(sel)
+        d3.select("#selectButton1").on("change", function(d) {
+            let order = +(allGroup1[this.selectedIndex].replace("Pop", "")) -1;
+            // d3.select("#Tree").remove();
+            PlotTree(order);
+        });
+        document.getElementById("selectButton1").dispatchEvent(new Event('change'));
 
-        var index = 0
-        // console.log(treeraw)
-        // debugger
 
         // console.log(treeData)
         // debugger
         // Set the dimensions and margins of the diagram
 
-        PlotTree(order)
+
+
+
+
 
         function PlotTree(Uncon){
             var i = 0,
