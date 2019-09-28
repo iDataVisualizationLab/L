@@ -201,6 +201,7 @@
                     .data(nodes, function (d) {
                         return d.id || (d.id = ++i);
                     });
+                console.log(nodes)
 
                 nodes.forEach(function (d) {
                     d.y = d.depth * 100
@@ -418,7 +419,7 @@
                     }
                     if (d.name !=="Lsubtree7" || d.name !=="Usubtree9" || d.parent.data.name === "addsub3" || d.name !==union2){
                         theElm.select('circle.node')
-                            .attr('r', 10)
+                            .attr('r', 8)
                             .style("fill", function (d) {
                                 return d._children ? "lightsteelblue" : "#fff";
                             })
@@ -620,6 +621,8 @@
             .attr("d", d=>valueline(d))
             .attr("stroke","black")
             .attr("fill","none")
+            sanu.attr("transform", "translate("
+                + 0 + "," + -20 + ")")
     }
     function plotInterior(Inner, theElm, ai_di){
         var sanu1 = theElm.append("g").attr("id","inter"+ai_di)
@@ -631,6 +634,8 @@
             .attr("fill","red")
             .attr("stroke", "blue")
             .style("stroke-width","1px")
+        sanu1.attr("transform", "translate("
+            + 0 + "," + -20 + ")")
     }
     // //Redraw for zoom
     // function redraw() {
