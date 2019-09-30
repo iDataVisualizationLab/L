@@ -66,7 +66,7 @@
 
     var treeData
     let coord_x = null;
-    d3.json("full_gen_1.json", treeraw => {
+    d3.json("Gen2_pop10.json", treeraw => {
 
         var index = 0
         // console.log(treeraw)
@@ -76,14 +76,14 @@
         // debugger
         // Set the dimensions and margins of the diagram
 
-        PlotTree(2)
+        PlotTree(0)
 
         function PlotTree(Uncon){
             var i = 0,
                 duration = 750,
                 root;
-            treeData = treeraw[Uncon];
-            console.log(treeData)
+            treeData = treeraw[Uncon][0];
+            // console.log(treeData)
             // declares a tree layout and assigns the size
             var treemap = d3.tree().size([height, width])
                 // .separation1((a, b) => (a.parent == b.parent ? 1 :2))
@@ -162,9 +162,13 @@
                 nodeEnter._groups[0].forEach(n =>{
                     let theElm = d3.select(n);
                     let d = theElm.datum();
-                    // console.log(d)
-                    if (d.depth ==6){
+                    // if (d.depth==2){
+                    //     console.log(d)
+                    //     debugger
+                    // }
+                    if (d.depth ==6 && d.height !=0){
                         //     // console.log(d.id)
+                        // console.log(d)
                         let coords = d.data.cordinate;
                         let ai_di = d.depth
                         // console.log(ai_di)
@@ -230,7 +234,7 @@
                             plotExterior_small(Ext2, theElm,ai_di)
                         }
                     }
-                    if (d.depth==7){
+                    if (d.depth==7 || d.height ==0 ){
                         theElm.append('circle')
                             .attr('class', 'node')
                             .attr('id',(d,i)=>{
@@ -243,6 +247,22 @@
 
                     }
                     if (d.depth ==3 && d.parent.data.name == "addsub3"){
+                        theElm.append('circle')
+                            .attr('class', 'node')
+                            .attr('id',(d,i)=>{
+                                return `n${i}`
+                            })
+                            .attr('r', 1e-6)
+                            .style("fill", function (d) {
+                                return d._children ? "lightsteelblue" : "#fff";
+                            })
+                    }
+                    // console.log(d)
+                    // debugger
+                    if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1")
+                        {
+
+                            console.log(d)
                         theElm.append('circle')
                             .attr('class', 'node')
                             .attr('id',(d,i)=>{
@@ -289,7 +309,7 @@
                     let theElm = d3.select(n);
                     let d = theElm.datum()
                     // console.log(d)
-                    if (d.depth ==6){
+                    if (d.depth ==6 && d.height !=0){
                         //     // console.log(d.id)
 
 
@@ -298,7 +318,7 @@
                         d3.select('#inter' + d.id).remove();
                         let coords = d.data.cordinate;
                         let Outer = coords.filter(d=>typeof(d[0])==="number")
-                        console.log(d.x)
+                        // console.log(d.x)
                         plotExterior(Outer, theElm,ai_di)
 
                     }
@@ -346,7 +366,7 @@
                             plotExterior(Ext2, theElm,ai_di)
                         }
                     }
-                    if (d.depth ==7){
+                    if (d.depth ==7 || d.height ==0){
                         theElm.select('circle.node')
                             .attr('r', 10)
                             .style("fill", function (d) {
@@ -361,6 +381,16 @@
                                 return d._children ? "lightsteelblue" : "#fff";
                             })
                             .attr('cursor', 'pointer')
+                    }
+                    if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1")
+                    {
+                        theElm.select('circle.node')
+                            .attr('r', 10)
+                            .style("fill", function (d) {
+                                return d._children ? "lightsteelblue" : "#fff";
+                            })
+                            .attr('cursor', 'pointer')
+
                     }
 
                 });
@@ -380,7 +410,7 @@
                     let d = theElm.datum()
                     // console.log(d)
 
-                    if (d.depth ==6){
+                    if (d.depth ==6 && d.height !=0){
                         //     // console.log(d.id)
                         let coords = d.data.cordinate;
                         let ai_di = d.depth
@@ -408,7 +438,7 @@
                     }
                     if (d.depth ==3 && d.parent.data.name !== "addsub3"){
                         //     // console.log(d.id)
-                        console.log(d)
+                        // console.log(d)
                         // debugger
                         let coords = d.data.cordinate;
 
@@ -425,7 +455,7 @@
                             plotExterior_small(Ext2, theElm,ai_di)
                         }
                     }
-                    if (d.depth ==7){
+                    if (d.depth ==7 || d.height ==0 ){
                         theElm.select('circle')
                             .attr('r', 1e-6);
                     }
@@ -433,6 +463,13 @@
                         theElm.select('circle')
                             .attr('r', 1e-6);
                     }
+                    if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1")
+                    {
+                        // console.log(d)
+                        theElm.select('circle')
+                            .attr('r', 1e-6);
+                    }
+
                 })
 
                 // On exit reduce the node circles size to 0
@@ -521,7 +558,7 @@
             .attr("d", d=>valueline_small(d))
             .attr("fill", function(d){
                 return myColor(ai_di)
-                console.log(myColor(ai_di))
+                // console.log(myColor(ai_di))
 
             })
             .attr("stroke","black")
