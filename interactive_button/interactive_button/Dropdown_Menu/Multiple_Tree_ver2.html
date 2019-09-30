@@ -235,7 +235,7 @@
                         let Outer = coords.filter(d=>typeof(d[0])==="number")
                         plotExterior_small(Outer, theElm,ai_di)
                     }
-                    if (d.depth ==5 ||d.depth ==4){
+                    if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
                         //     // console.log(d.id)
                         // console.log(d)
                         // debugger
@@ -380,7 +380,7 @@
                         plotExterior(Outer, theElm,ai_di)
 
                     }
-                    if (d.depth ==5 ||d.depth ==4){
+                    if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
                         //     // console.log(d.id)
                         let coords = d.data.cordinate;
                         let ai_di = d.depth
@@ -475,7 +475,7 @@
                         plotExterior_small(Outer, theElm,ai_di)
 
                     }
-                    if (d.depth ==5 ||d.depth ==4){
+                    if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
                         //     // console.log(d.id)
                         let coords = d.data.cordinate;
                         let ai_di = d.depth

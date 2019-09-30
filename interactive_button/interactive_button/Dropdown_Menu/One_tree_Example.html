@@ -66,7 +66,7 @@
 
     var treeData
     let coord_x = null;
-    d3.json("Gen2_pop10.json", treeraw => {
+    d3.json("Gen9_pop2.json", treeraw => {
 
         var index = 0
         // console.log(treeraw)
@@ -175,10 +175,10 @@
                         let Outer = coords.filter(d=>typeof(d[0])==="number")
                         plotExterior_small(Outer, theElm,ai_di)
                     }
-                    if (d.depth ==5 ||d.depth ==4){
+                    if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
                         //     // console.log(d.id)
-                        // console.log(d)
-                        // debugger
+                        console.log(d)
+                        debugger
 
                         let coords = d.data.cordinate;
                         let ai_di = d.depth
@@ -322,7 +322,7 @@
                         plotExterior(Outer, theElm,ai_di)
 
                     }
-                    if (d.depth ==5 ||d.depth ==4){
+                    if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
                         //     // console.log(d.id)
                         let coords = d.data.cordinate;
                         let ai_di = d.depth
@@ -419,7 +419,7 @@
                         plotExterior_small(Outer, theElm,ai_di)
 
                     }
-                    if (d.depth ==5 ||d.depth ==4){
+                    if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
                         //     // console.log(d.id)
                         let coords = d.data.cordinate;
                         let ai_di = d.depth
