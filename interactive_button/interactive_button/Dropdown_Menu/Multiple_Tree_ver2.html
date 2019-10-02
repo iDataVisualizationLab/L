@@ -73,14 +73,23 @@
     var margin = {top: 20, right: 90, bottom: 30, left: 90},
         width = 1500 - margin.left - margin.right,
         height = 750 - margin.top - margin.bottom;
-    var myColor = d3.scaleOrdinal(d3.schemeCategory10);
-
     var svg = d3.select("#Tree").append("svg")
-            .attr("width", width + margin.right + margin.left)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate("
-                + margin.left + "," + margin.top + ")")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate("
+            + margin.left + "," + margin.top + ")")
+    var myColor = d3.scaleOrdinal(d3.schemeCategory10);
+    var margin_t = {top: 20, right: 20, bottom: 30, left: 50},
+        width_t = 600 - margin.left - margin.right,
+        height_t = 200 - margin.top - margin.bottom;
+    var svg_t = d3.select("#S11").append("svg")
+        .attr("width", width_t + margin_t.left + margin_t.right)
+        .attr("height", height_t + margin_t.top + margin_t.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin_t.left + "," + margin_t.top + ")");
+
         // .call(zm = d3.zoom().scaleExtent([1,3]).on("zoom", redraw)).append("g")
         // .attr("transform", "translate(" + 0 + "," + 50 + ")")
     ;
@@ -220,13 +229,12 @@
                     if (d.depth==0){
                         // console.log(d)
                         // debugger
+                        svg_t.selectAll("*").remove()
                         let Freq = d.data.Fre
                         let RL = d.data.S11
                         document.getElementById("cost").value=d.data.cost.toFixed(2);
                         // We shall plot the Frequency and S11 to show the data here:
-                        var margin_t = {top: 20, right: 20, bottom: 30, left: 50},
-                            width_t = 600 - margin.left - margin.right,
-                            height_t = 200 - margin.top - margin.bottom;
+
                         var x = d3.scaleLinear().range([0, width_t]);
                         var y = d3.scaleLinear().range([height_t, 0]);
                         var valueline_t = d3.line()
@@ -237,18 +245,16 @@
                         })
 
                         console.log(data)
-                        var svg_t = d3.select("#S11").append("svg")
-                            .attr("width", width_t + margin_t.left + margin_t.right)
-                            .attr("height", height_t + margin_t.top + margin_t.bottom)
-                            .append("g")
-                            .attr("transform",
-                                "translate(" + margin_t.left + "," + margin_t.top + ")");
+
                         x.domain([3.3, d3.max(Freq)]);
                         y.domain([d3.min(RL),0]);
                         svg_t.append("path")
                             .data([data])
                             .attr("class", "line")
-                            .attr("d", valueline_t);
+                            .attr("d", valueline_t)
+                            .attr("stroke","blue")
+                            .attr("stroke-width",2)
+                            .attr("fill","none");
 
                         // Add the X Axis
                         svg_t.append("g")
