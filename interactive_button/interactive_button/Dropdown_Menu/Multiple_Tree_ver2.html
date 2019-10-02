@@ -32,6 +32,10 @@
 <button type="button" id="btnunion" >Union</button>
 <button type="button" id="btnoverlap">Overlap</button>
 <div id="Tree"></div>
+<h6>Cost Value of antenna</h6>
+<input  id ="cost"  name="cost" value=13>
+<!--<h6>Height of antenna</h6>-->
+<!--<input  id ="height" name="height" value=13>-->
 <body>
 
 <!-- load the d3.js library -->
@@ -83,8 +87,12 @@
 
     var treeData
     let coord_x = null;
-    var allGroup = ["Gen1", "Gen2","Gen3", "Gen4","Gen5", "Gen6","Gen7", "Gen8","Gen9","Gen10", "Gen11", "Gen12","Gen13", "Gen14","Gen15", "Gen16","Gen17", "Gen18", "Gen19", "Gen20"];
-    var allGroup1 = ["Pop1", "Pop2","Pop3", "Pop4","Pop5", "Pop6","Pop7", "Pop8","Pop9", "Pop10","Pop11", "Pop12","Pop13", "Pop14","Pop15"];
+    // var allGroup = ["Gen1", "Gen2","Gen3", "Gen4","Gen5", "Gen6","Gen7", "Gen8","Gen9","Gen10", "Gen11", "Gen12","Gen13", "Gen14","Gen15", "Gen16","Gen17", "Gen18", "Gen19", "Gen20"];
+    // var allGroup1 = ["Pop1", "Pop2","Pop3", "Pop4","Pop5", "Pop6","Pop7", "Pop8","Pop9", "Pop10","Pop11", "Pop12","Pop13", "Pop14","Pop15","Pop16","Pop17", "Pop18","Pop19", "Pop20" ];
+
+    var allGroup = ["Gen1", "Gen2","Gen3", "Gen4","Gen5", "Gen6","Gen7", "Gen8","Gen9","Gen10", "Gen11", "Gen12","Gen13", "Gen14","Gen15", "Gen16","Gen17", "Gen18", "Gen19", "Gen20", "Gen21"];
+    var allGroup1 = ["Pop1", "Pop2","Pop3", "Pop4","Pop5", "Pop6","Pop7", "Pop8","Pop9", "Pop10","Pop11", "Pop12","Pop13", "Pop14","Pop15" ,"Pop16","Pop17", "Pop18","Pop19", "Pop20"];
+
 
     // add the options to the button
     d3.select("#selectButton")
@@ -96,7 +104,7 @@
         .attr("value", function (d) { return d; }) // corresponding value returned by the button
 
     d3.select("#selectButton1")
-        .selectAll('myOptions')
+        .selectAll('myOptions1')
         .data(allGroup1)
         .enter()
         .append('option')
@@ -105,7 +113,7 @@
 
 
 
-    d3.json("Full_tree.json", treeraw => {
+    d3.json("Full_gen_cost.json", treeraw => {
         // console.log(treeraw)
 
 
@@ -118,7 +126,7 @@
         // console.log(sel)
         d3.select("#selectButton1").on("change", function(d) {
             var num_gen = 20;
-            var num_pop = 15;
+            var num_pop = 20;
             let pop = +(allGroup1[this.selectedIndex].replace("Pop", ""));
             let gen = +document.getElementById("selectButton").value.replace("Gen", "")
             console.log(gen)
@@ -148,9 +156,12 @@
                 root;
             treeData = treeraw[Uncon][0];
             // declares a tree layout and assigns the size
-            var treemap = d3.tree().size([height, width])
-                // .separation1((a, b) => (a.parent == b.parent ? 1 :2))
-            ;
+            var treemap = d3.tree()
+                .size([height, width])
+                //     .nodeSize([50, 20])
+                .separation(function(a, b) {
+                    return a.parent == b.parent ? 1 : 1.25;
+                });            ;
 
             // Assigns parent, children, height, depth
             root = d3.hierarchy(treeData, function (d) {
@@ -202,9 +213,14 @@
                     .data(nodes, function (d) {
                         return d.id || (d.id = ++i);
                     });
-                // console.log(nodes)
+
 
                 nodes.forEach(function (d) {
+                    if (d.depth==0){
+                        console.log(d.data.cost)
+                        document.getElementById("cost").value=d.data.cost.toFixed(2);
+                        // document.getElementById("height").value=d.data.cost.toFixed(2) +1;
+                    }
                     d.y = d.depth * 100
                     // if ( d.depth ==6){
                     //     d.x = coord_x[d.id];
