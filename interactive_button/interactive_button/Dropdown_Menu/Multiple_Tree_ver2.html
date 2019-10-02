@@ -32,8 +32,9 @@
 <button type="button" id="btnunion" >Union</button>
 <button type="button" id="btnoverlap">Overlap</button>
 <div id="Tree"></div>
-<h6>Cost Value of antenna</h6>
-<input  id ="cost"  name="cost" value=13>
+<div id="S11"></div>
+<h5>Cost Value of antenna</h5>
+<input  id ="cost"  name="cost" value=>
 <!--<h6>Height of antenna</h6>-->
 <!--<input  id ="height" name="height" value=13>-->
 <body>
@@ -113,7 +114,7 @@
 
 
 
-    d3.json("Full_gen_cost.json", treeraw => {
+    d3.json("Full_gen_1_tab.json", treeraw => {
         // console.log(treeraw)
 
 
@@ -217,8 +218,46 @@
 
                 nodes.forEach(function (d) {
                     if (d.depth==0){
-                        console.log(d.data.cost)
+                        // console.log(d)
+                        // debugger
+                        let Freq = d.data.Fre
+                        let RL = d.data.S11
                         document.getElementById("cost").value=d.data.cost.toFixed(2);
+                        // We shall plot the Frequency and S11 to show the data here:
+                        var margin_t = {top: 20, right: 20, bottom: 30, left: 50},
+                            width_t = 600 - margin.left - margin.right,
+                            height_t = 200 - margin.top - margin.bottom;
+                        var x = d3.scaleLinear().range([0, width_t]);
+                        var y = d3.scaleLinear().range([height_t, 0]);
+                        var valueline_t = d3.line()
+                            .x(function(d) { return x(d[0]); })
+                            .y(function(d) { return y(d[1]); });
+                        console.log(Freq)
+                        console.log(RL)
+                        var data = [Freq, RL]
+                        console.log(data)
+                        var svg_t = d3.select("#S11").append("svg")
+                            .attr("width", width_t + margin_t.left + margin_t.right)
+                            .attr("height", height_t + margin_t.top + margin_t.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin_t.left + "," + margin_t.top + ")");
+                        x.domain([3.3, d3.max(Freq)]);
+                        y.domain([d3.min(RL),0]);
+                        svg_t.append("path")
+                            .data([data])
+                            .attr("class", "line")
+                            .attr("d", valueline_t);
+
+                        // Add the X Axis
+                        svg_t.append("g")
+                            .attr("transform", "translate(0," + height_t + ")")
+                            .call(d3.axisBottom(x));
+
+                        // Add the Y Axis
+                        svg_t.append("g")
+                            .call(d3.axisLeft(y));
+
                         // document.getElementById("height").value=d.data.cost.toFixed(2) +1;
                     }
                     d.y = d.depth * 100
@@ -336,7 +375,7 @@
                     if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1")
                     {
 
-                        console.log(d)
+                        // console.log(d)
                         theElm.append('circle')
                             .attr('class', 'node')
                             .attr('id',(d,i)=>{
