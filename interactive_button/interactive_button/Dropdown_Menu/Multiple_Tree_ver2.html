@@ -240,8 +240,8 @@
                         var valueline_t = d3.line()
                             .x(function(d,i) { return x(d[0]); })
                             .y(function(d,i) { return y(d[1]); });
-                        var data = Freq.map((e, idx) => {
-                            return [e, RL[idx]]
+                        var data = Freq.map((d, i) => {
+                            return [d, RL[i]]
                         })
 
                         console.log(data)
