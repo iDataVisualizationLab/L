@@ -230,11 +230,12 @@
                         var x = d3.scaleLinear().range([0, width_t]);
                         var y = d3.scaleLinear().range([height_t, 0]);
                         var valueline_t = d3.line()
-                            .x(function(d) { return x(d[0]); })
-                            .y(function(d) { return y(d[1]); });
-                        console.log(Freq)
-                        console.log(RL)
-                        var data = [Freq, RL]
+                            .x(function(d,i) { return x(d[0]); })
+                            .y(function(d,i) { return y(d[1]); });
+                        var data = Freq.map((e, idx) => {
+                            return [e, RL[idx]]
+                        })
+
                         console.log(data)
                         var svg_t = d3.select("#S11").append("svg")
                             .attr("width", width_t + margin_t.left + margin_t.right)
@@ -288,6 +289,7 @@
                         let ai_di = d.depth
                         // console.log(ai_di)
                         let Outer = coords.filter(d=>typeof(d[0])==="number")
+                        console.log(Outer)
                         plotExterior_small(Outer, theElm,ai_di)
                     }
                     if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
