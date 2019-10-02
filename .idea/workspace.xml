@@ -3,8 +3,29 @@
   <component name="ChangeListManager">
     <list default="true" id="64367b09-227d-4b03-997a-1e7ca410afd3" name="Default Changelist" comment="Linh Learning">
       <change afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Antenna_with_union3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Full_gen_cost.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Full_tree_ver2.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Antenna_tree_with_union.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Antenna_tree_with_union.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Gen2_pop10.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Multiple_Tree_ver2.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Multiple_Tree_ver2.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree0.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree1.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree10.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree2.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree3.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree4.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree5.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree6.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree7.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree8.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree9.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree_gen4_14.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree_new0.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/full_gen.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/full_gen_1.json" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/full_gen_1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/full_gen_F.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/tree_test_full.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/Test_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_button/interactive_button/Test_1.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interactive_button/interactive_button/test_2.html" beforeDir="false" afterPath="$PROJECT_DIR$/interactive_button/interactive_button/test_2.html" afterDir="false" />
     </list>
@@ -19,20 +40,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/One_tree_Example.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="988">
-              <caret line="470" column="21" selection-start-line="465" selection-start-column="20" selection-end-line="470" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Multiple_Tree_ver2.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-5699">
-              <caret line="229" column="51" selection-start-line="229" selection-start-column="51" selection-end-line="229" selection-end-column="51" />
+            <state relative-caret-position="946">
+              <caret line="115" column="26" selection-start-line="115" selection-start-column="26" selection-end-line="115" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -49,9 +61,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>collaps</find>
-      <find>consol</find>
-      <find>bound</find>
       <find>layout</find>
       <find>Elmm</find>
       <find>addsub</find>
@@ -79,6 +88,9 @@
       <find>nodes</find>
       <find>console.log</find>
       <find>d.x</find>
+      <find>collapse</find>
+      <find>input</find>
+      <find>fixe</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -135,7 +147,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -158,6 +169,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -191,7 +203,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JavaScript Debug.Multiple_tree.html">
+  <component name="RunManager" selected="JavaScript Debug.Multiple_Tree_ver2.html">
     <configuration name="Antenna_with_tree_union_2.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/L/interactive_button/interactive_button/Antenna_with_tree_union_2.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
@@ -209,9 +221,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.Multiple_Tree_ver2.html" />
         <item itemvalue="JavaScript Debug.Multiple_tree.html" />
         <item itemvalue="JavaScript Debug.One_tree_Example.html" />
-        <item itemvalue="JavaScript Debug.Multiple_Tree_ver2.html" />
         <item itemvalue="JavaScript Debug.antenna_tree_example_v4.html" />
         <item itemvalue="JavaScript Debug.Antenna_with_tree_union_2.html" />
       </list>
@@ -280,7 +292,10 @@
       <workItem from="1569602146640" duration="13151000" />
       <workItem from="1569684712125" duration="6191000" />
       <workItem from="1569855722770" duration="802000" />
-      <workItem from="1569860437263" duration="5196000" />
+      <workItem from="1569860437263" duration="8057000" />
+      <workItem from="1569944240124" duration="4331000" />
+      <workItem from="1569973823415" duration="756000" />
+      <workItem from="1570032758060" duration="3660000" />
     </task>
     <task id="LOCAL-00001" summary="Linh Learning">
       <created>1564444633565</created>
@@ -541,15 +556,28 @@
       <option name="project" value="LOCAL" />
       <updated>1569884640334</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Linh Learning">
+      <created>1569884783704</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1569884783704</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Linh Learning">
+      <created>1569887743479</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1569887743479</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="225841000" />
+    <option name="totallyTimeSpent" value="237449000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="2560" height="1325" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18629381" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -863,18 +891,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/full_gen_1.json">
+    <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Full_gen_1.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree5.json">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Dropdown_simple.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="915">
-          <caret line="61" column="10" selection-start-line="61" selection-start-column="10" selection-end-line="61" selection-end-column="10" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Antenna_tree_with_union.html">
       <provider selected="true" editor-type-id="text-editor">
@@ -890,13 +911,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/One_tree_Example.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="988">
-          <caret line="470" column="21" selection-start-line="465" selection-start-column="20" selection-end-line="470" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Tree6.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -906,10 +920,24 @@
     <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/full_gen_F.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/One_tree_Example.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="701">
+          <caret line="421" column="24" selection-start-line="421" selection-start-column="24" selection-end-line="421" selection-end-column="66" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Dropdown_simple.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="30" column="26" lean-forward="true" selection-start-line="30" selection-start-column="26" selection-end-line="30" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/interactive_button/interactive_button/Dropdown_Menu/Multiple_Tree_ver2.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5699">
-          <caret line="229" column="51" selection-start-line="229" selection-start-column="51" selection-end-line="229" selection-end-column="51" />
+        <state relative-caret-position="946">
+          <caret line="115" column="26" selection-start-line="115" selection-start-column="26" selection-end-line="115" selection-end-column="26" />
         </state>
       </provider>
     </entry>
