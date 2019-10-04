@@ -45,6 +45,11 @@
     var margin = {top: 20, right: 90, bottom: 30, left: 90},
         width = 1500 - margin.left - margin.right,
         height = 750 - margin.top - margin.bottom;
+
+    var margin_t = {top: 20, right: 20, bottom: 30, left: 50},
+        width_t = 600 - margin.left - margin.right,
+        height_t = 200 - margin.top - margin.bottom;
+
     var valueline = d3.line()
 
         .x(function(d) {return ((d[0]*2));})
@@ -158,56 +163,63 @@
                                 // // This part is for the S11 (Return Loss)
                                 // svg_t.selectAll("*").remove()
                                 // console.log(typeof (d.data.Fre))
-                                // if (d.data.Fre){
-                                //     // We shall plot the Frequency and S11 to show the data here:
-                                //     let Freq = d.data.Fre
-                                //     let RL = d.data.S11
-                                //     var x = d3.scaleLinear().range([0, width_t]);
-                                //     var y = d3.scaleLinear().range([height_t, 0]);
-                                //     var valueline_t = d3.line()
-                                //         .x(function(d,i) { return x(d[0]); })
-                                //         .y(function(d,i) { return y(d[1]); });
-                                //     var data = Freq.map((d, i) => {
-                                //         return [d, RL[i]]
-                                //     })
-                                //
-                                //     // console.log(data)
-                                //
-                                //     x.domain([3.3, d3.max(Freq)]);
-                                //     y.domain([d3.min(RL),0]);
-                                //     svg_t.append("path")
-                                //         .data([data])
-                                //         .attr("class", "line")
-                                //         .attr("d", valueline_t)
-                                //         .attr("stroke","blue")
-                                //         .attr("stroke-width",2)
-                                //         .attr("fill","none");
-                                //
-                                //     // Add the X Axis
-                                //     svg_t.append("g")
-                                //         .attr("transform", "translate(0," + height_t + ")")
-                                //         .call(d3.axisBottom(x));
-                                //
-                                //     svg_t.append("text")
-                                //         .attr("transform",
-                                //             "translate(" + (width_t/2) + " ," +
-                                //             (height_t + margin_t.top +5) + ")")
-                                //         .style("text-anchor", "middle")
-                                //         .text("Frequency");
-                                //
-                                //
-                                //     // Add the Y Axis
-                                //     svg_t.append("g")
-                                //         .call(d3.axisLeft(y));
-                                //
-                                //     svg_t.append("text")
-                                //         .attr("transform", "rotate(-90)")
-                                //         .attr("y", 0 - margin_t.left)
-                                //         .attr("x",0 - (height_t / 2))
-                                //         .attr("dy", "1em")
-                                //         .style("text-anchor", "middle")
-                                //         .text("Return Loss [dB]");
-                                // }
+                                var svg_t = d3.select('body').append("svg")
+                                    .style("float","right")
+                                    .attr("width", width_t + margin_t.left + margin_t.right)
+                                    .attr("height", height_t + margin_t.top + margin_t.bottom)
+                                    .append("g")
+                                    .attr("transform",
+                                        "translate(" + margin_t.left + "," + margin_t.top + ")");
+                                if (d.data.Fre){
+                                    // We shall plot the Frequency and S11 to show the data here:
+                                    let Freq = d.data.Fre
+                                    let RL = d.data.S11
+                                    var x = d3.scaleLinear().range([0, width_t]);
+                                    var y = d3.scaleLinear().range([height_t, 0]);
+                                    var valueline_t = d3.line()
+                                        .x(function(d,i) { return x(d[0]); })
+                                        .y(function(d,i) { return y(d[1]); });
+                                    var data = Freq.map((d, i) => {
+                                        return [d, RL[i]]
+                                    })
+
+                                    // console.log(data)
+
+                                    x.domain([3.3, d3.max(Freq)]);
+                                    y.domain([d3.min(RL),0]);
+                                    svg_t.append("path")
+                                        .data([data])
+                                        .attr("class", "line")
+                                        .attr("d", valueline_t)
+                                        .attr("stroke","blue")
+                                        .attr("stroke-width",2)
+                                        .attr("fill","none");
+
+                                    // Add the X Axis
+                                    svg_t.append("g")
+                                        .attr("transform", "translate(0," + height_t + ")")
+                                        .call(d3.axisBottom(x));
+
+                                    svg_t.append("text")
+                                        .attr("transform",
+                                            "translate(" + (width_t/2) + " ," +
+                                            (height_t + margin_t.top +5) + ")")
+                                        .style("text-anchor", "middle")
+                                        .text("Frequency");
+
+
+                                    // Add the Y Axis
+                                    svg_t.append("g")
+                                        .call(d3.axisLeft(y));
+
+                                    svg_t.append("text")
+                                        .attr("transform", "rotate(-90)")
+                                        .attr("y", 0 - margin_t.left)
+                                        .attr("x",0 - (height_t / 2))
+                                        .attr("dy", "1em")
+                                        .style("text-anchor", "middle")
+                                        .text("Return Loss [dB]");
+                                }
 
 
                                 // document.getElementById("height").value=d.data.cost.toFixed(2) +1;
