@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<style>
+
+    .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 3px;
+    }
+
+    .node text {
+        font: 12px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+    }
+
+</style>
+<!-- Add 2 buttons-->
+<!-- Initialize a select button -->
+<!--<select id="selectButton"></select>-->
+<!--<select id="selectButton1"></select>-->
+
+
+<!--&lt;!&ndash; Create a div where the graph will take place &ndash;&gt;-->
+<!--<div id="Gen_viz"></div>-->
+<!--<div id="Pop_viz"></div>-->
+
+<!--<button type="button" id="btnunion" >Union</button>-->
+<!--<button type="button" id="btnoverlap">Overlap</button>-->
+<!--<div id="Tree"></div>-->
+<!--<div id="S11"></div>-->
+<!--<h5>Cost Value of antenna</h5>-->
+<!--<input  id ="cost"  name="cost" value=>-->
+<!--<h6>Height of antenna</h6>-->
+<!--<input  id ="height" name="height" value=13>-->
+<body>
+
+<!-- load the d3.js library -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    var margin = {top: 20, right: 90, bottom: 30, left: 90},
+        width = 1500 - margin.left - margin.right,
+        height = 750 - margin.top - margin.bottom;
+    var valueline = d3.line()
+
+        .x(function(d) {return ((d[0]*2));})
+        .y(function(d) { return ((d[1]*2));})
+    var valueline_small = d3.line()
+
+        .x(function(d) {return ((d[0]*0.0001));})
+        .y(function(d) { return ((d[1]*0.0001));})
+    var myColor = d3.scaleOrdinal(d3.schemeCategory10);
+    var gens = ["Gen1", "Gen2","Gen3", "Gen4","Gen5", "Gen6","Gen7", "Gen8","Gen9","Gen10", "Gen11", "Gen12","Gen13", "Gen14","Gen15", "Gen16","Gen17", "Gen18", "Gen19", "Gen20"];
+    // "Gen21","Gen22","Gen23", "Gen24","Gen25", "Gen26","Gen27", "Gen28", "Gen29", "Gen30", "Gen31","Gen32","Gen33", "Gen34","Gen35", "Gen36","Gen37", "Ge38", "Gen39", "Gen40", "Gen41","Gen42","Gen43", "Gen44","Gen45", "Gen46","Gen47", "Gen48", "Gen49", "Gen50", "Gen51", "Gen52"];
+    var pops = ["Pop1", "Pop2","Pop3", "Pop4","Pop5", "Pop6","Pop7", "Pop8","Pop9", "Pop10","Pop11", "Pop12","Pop13", "Pop14","Pop15" ,"Pop16","Pop17", "Pop18","Pop19", "Pop20"];
+    var layout = 'Union'
+    d3.json("Full_gen_tab_noLow.json", treeraw => {
+        console.log(gens.length)
+        for(let g = 0;g <gens.length;g++){
+            for (let p=0;p<pops.length;p++){
+                const num_pop = 20
+                let svg = d3.select('body').append("svg").attr("width", width + margin.right + margin.left)
+                    .attr('id',function () {
+                        return gens[g] +" - "+pops[p]
+                    })
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate("
+                        + margin.left + "," + margin.top + ")");
+                let order = g*num_pop + p
+                PlotTree(order)
+                svg.append("text")
+                    .attr("transform",
+                        "translate(" + (width/2) + " ," +
+                        (height + margin.top +5) + ")")
+                    .style("text-anchor", "middle")
+                    .text(function () {
+                        return gens[g] +" - "+pops[p]
+                    });
+                function PlotTree(Uncon){
+                    // svg.selectAll("*").remove()
+                    var i = 0,
+                        duration = 750,
+                        root;
+                    treeData = treeraw[Uncon][0];
+                    // declares a tree layout and assigns the size
+                    var treemap = d3.tree()
+                        .size([height, width])
+                        //     .nodeSize([50, 20])
+                        .separation(function(a, b) {
+                            return a.parent == b.parent ? 1 : 1.25;
+                        });            ;
+
+                    // Assigns parent, children, height, depth
+                    root = d3.hierarchy(treeData, function (d) {
+                        return d.children;
+                    });
+                    root.x0 = height / 2;
+                    root.y0 = 0;
+
+                    // Collapse after the second level (L)
+                    root.children.forEach(collapseLevel);
+                    // console.log(root)
+                    rootraw = root
+                    update(root);
+
+                    function collapseLevel(d) {
+                        if (d.children && d.depth>6) {
+                            d._children = d.children;
+                            d._children.forEach(collapseLevel);
+                            d.children = null;
+                        } else if (d.children) {
+                            d.children.forEach(collapseLevel);
+                        }
+                    }
+                    var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+                    function update(source) {
+
+                        // Assigns the x and y position for the nodes
+                        var treeData = treemap(root);
+
+                        // Compute the new tree layout.
+                        var nodes = treeData.descendants(),
+                            links = treeData.descendants().slice(1);
+
+                        // nodes.forEach((n,i) => n.id = i);
+                        // let mid6 = nodes.filter(d => d.depth==6)
+                        // if (coord_x===null){
+                        //     coord_x = []
+                        //     mid6.forEach(function (mid6){
+                        //         coord_x[mid6.id] = mid6.x;
+                        //     })
+                        //     console.log(coord_x)
+                        // }
+
+
+                        // ****************** Nodes section ***************************
+
+                        // Update the nodes...
+                        var node = svg.selectAll('g.node')
+                            .data(nodes, function (d) {
+                                return d.id || (d.id = ++i);
+                            });
+
+
+                        nodes.forEach(function (d) {
+                            if (d.depth==0){
+                                // console.log(d)
+                                // debugger
+                                // This part is for the cost
+                                // document.getElementById("cost").value=d.data.cost.toFixed(2);
+                                //
+                                //
+                                // // This part is for the S11 (Return Loss)
+                                // svg_t.selectAll("*").remove()
+                                // console.log(typeof (d.data.Fre))
+                                // if (d.data.Fre){
+                                //     // We shall plot the Frequency and S11 to show the data here:
+                                //     let Freq = d.data.Fre
+                                //     let RL = d.data.S11
+                                //     var x = d3.scaleLinear().range([0, width_t]);
+                                //     var y = d3.scaleLinear().range([height_t, 0]);
+                                //     var valueline_t = d3.line()
+                                //         .x(function(d,i) { return x(d[0]); })
+                                //         .y(function(d,i) { return y(d[1]); });
+                                //     var data = Freq.map((d, i) => {
+                                //         return [d, RL[i]]
+                                //     })
+                                //
+                                //     // console.log(data)
+                                //
+                                //     x.domain([3.3, d3.max(Freq)]);
+                                //     y.domain([d3.min(RL),0]);
+                                //     svg_t.append("path")
+                                //         .data([data])
+                                //         .attr("class", "line")
+                                //         .attr("d", valueline_t)
+                                //         .attr("stroke","blue")
+                                //         .attr("stroke-width",2)
+                                //         .attr("fill","none");
+                                //
+                                //     // Add the X Axis
+                                //     svg_t.append("g")
+                                //         .attr("transform", "translate(0," + height_t + ")")
+                                //         .call(d3.axisBottom(x));
+                                //
+                                //     svg_t.append("text")
+                                //         .attr("transform",
+                                //             "translate(" + (width_t/2) + " ," +
+                                //             (height_t + margin_t.top +5) + ")")
+                                //         .style("text-anchor", "middle")
+                                //         .text("Frequency");
+                                //
+                                //
+                                //     // Add the Y Axis
+                                //     svg_t.append("g")
+                                //         .call(d3.axisLeft(y));
+                                //
+                                //     svg_t.append("text")
+                                //         .attr("transform", "rotate(-90)")
+                                //         .attr("y", 0 - margin_t.left)
+                                //         .attr("x",0 - (height_t / 2))
+                                //         .attr("dy", "1em")
+                                //         .style("text-anchor", "middle")
+                                //         .text("Return Loss [dB]");
+                                // }
+
+
+                                // document.getElementById("height").value=d.data.cost.toFixed(2) +1;
+                            }
+                            d.y = d.depth * 100
+                            // if ( d.depth ==6){
+                            //     d.x = coord_x[d.id];
+                            // }
+                        });
+                        // Enter any new modes at the parent's previous position.
+                        var nodeEnter = node.enter().append('g')
+                            .attr('class', 'node')
+                            .attr('id',(d,i)=>{
+                                return `g${i}`
+                            })
+                            .attr("transform", function (d) {
+                                return "translate(" + source.y0 + "," + source.x0 + ")";
+                            })
+                            .on('click', click);
+                        var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+                        var myColor = d3.scaleOrdinal(d3.schemeCategory10);
+                        var a = layout
+                        nodeEnter._groups[0].forEach(n =>{
+                            let theElm = d3.select(n);
+                            let d = theElm.datum();
+                            // console.log(d)
+                            if (d.depth ==6 && d.height !=0){
+                                //     // console.log(d.id)
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                // console.log(ai_di)
+                                let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                // console.log(Outer)
+                                plotExterior_small(Outer, theElm,ai_di)
+                            }
+                            if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
+                                //     // console.log(d.id)
+                                // console.log(d)
+                                // debugger
+
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                // console.log(ai_di)
+                                if(layout =='Union'){
+                                    let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                    plotExterior_small(Outer, theElm,ai_di)
+                                    let Inner = coords.filter(d=>typeof(d[0])!=="number")
+                                    // console.log(Inner)
+                                    if (Inner.length >0){
+                                        Inner.forEach(function (d) {
+                                            plotInterior(d,theElm,ai_di)
+
+                                        })
+                                    }
+                                }
+                                else{
+                                    let Ext1 = d.data.children[0].cordinate;
+                                    plotExterior_small(Ext1, theElm,ai_di)
+                                    let Ext2 = d.data.children[1].cordinate;
+                                    plotExterior_small(Ext2, theElm,ai_di)
+                                    let Inner = coords.filter(d=>typeof(d[0])!=="number")
+                                    // console.log(Inner)
+                                    if (Inner.length >0){
+                                        Inner.forEach(function (d) {
+                                            plotInterior(d,theElm,ai_di)
+
+                                        })
+                                    }
+                                }
+                            }
+                            if (d.depth ==3 && d.parent.data.name !== "addsub3"){
+
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                // console.log(ai_di)
+                                if(layout =='Union'){
+                                    let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                    plotExterior_small(Outer, theElm,ai_di)
+                                    let Inner = coords.filter(d=>typeof(d[0])!=="number")
+                                    // console.log(Inner)
+                                    if (Inner.length >0){
+                                        Inner.forEach(function (d) {
+                                            plotInterior(d,theElm,ai_di)
+
+                                        })
+                                    }
+                                }
+                                else{
+                                    let Ext1 = d.data.children[0].cordinate;
+                                    plotExterior_small(Ext1, theElm,ai_di)
+                                    let Ext2 = d.data.children[1].cordinate;
+                                    plotExterior_small(Ext2, theElm,ai_di)
+                                }
+                            }
+                            if (d.depth==7 || d.height ==0 ){
+                                theElm.append('circle')
+                                    .attr('class', 'node')
+                                    .attr('id',(d,i)=>{
+                                        return `n${i}`
+                                    })
+                                    .attr('r', 1e-6)
+                                    .style("fill", function (d) {
+                                        return d._children ? "lightsteelblue" : "#fff";
+                                    })
+
+                            }
+                            if (d.depth ==3 && d.parent.data.name == "addsub3"){
+                                theElm.append('circle')
+                                    .attr('class', 'node')
+                                    .attr('id',(d,i)=>{
+                                        return `n${i}`
+                                    })
+                                    .attr('r', 1e-6)
+                                    .style("fill", function (d) {
+                                        return d._children ? "lightsteelblue" : "#fff";
+                                    })
+                            }
+                            if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1")
+                            {
+
+                                // console.log(d)
+                                theElm.append('circle')
+                                    .attr('class', 'node')
+                                    .attr('id',(d,i)=>{
+                                        return `n${i}`
+                                    })
+                                    .attr('r', 1e-6)
+                                    .style("fill", function (d) {
+                                        return d._children ? "lightsteelblue" : "#fff";
+                                    })
+                            }
+
+                        })
+
+
+                        // Add labels for the nodes
+                        nodeEnter.append('text')
+                            .attr("dy", ".35em")
+                            .attr("x", function (d) {
+                                return d.children || d._children ? -13 : 13;
+                            })
+                            .attr("text-anchor", function (d) {
+                                return d.children || d._children ? "end" : "start";
+                            })
+                            .text(function (d) {
+                                if (d.depth >6){
+                                    return  d3.format('.2f')(d.data.name)
+                                }
+                                else {
+                                    return d.data.name
+                                };
+                            });
+
+                        // UPDATE
+                        var nodeUpdate = nodeEnter.merge(node);
+
+                        // Transition to the proper position for the node
+                        nodeUpdate.transition()
+                            .duration(duration)
+                            .attr("transform", function (d) {
+                                return "translate(" + d.y + "," + d.x + ")";
+                            });
+                        // console.log(nodeUpdate)
+                        nodeUpdate._groups[0].forEach(n =>{
+                            let theElm = d3.select(n);
+                            let d = theElm.datum()
+                            // console.log(d)
+                            if (d.depth ==6 && d.height !=0){
+                                //     // console.log(d.id)
+
+
+                                let ai_di = d.depth
+                                d3.select('#exter' + d.id).remove();
+                                d3.select('#inter' + d.id).remove();
+                                let coords = d.data.cordinate;
+                                let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                // console.log(d.x)
+                                plotExterior(Outer, theElm,ai_di)
+
+                            }
+                            if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
+                                //     // console.log(d.id)
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                // console.log(ai_di)
+
+                                if(layout =='Union'){
+                                    let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                    plotExterior(Outer, theElm,ai_di)
+                                }
+                                else{
+                                    let Ext1 = d.data.children[0].cordinate;
+                                    plotExterior(Ext1, theElm,ai_di)
+                                    let Ext2 = d.data.children[1].cordinate;
+                                    plotExterior(Ext2, theElm,ai_di)
+                                }
+                            }
+                            if (d.depth ==3 && d.parent.data.name !== "addsub3"){
+                                //     // console.log(d.id)
+                                // console.log(d)
+                                // debugger
+                                // console.log(d)
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                let coax = d.data.coax
+                                // console.log(coax)
+                                // console.log(ai_di)
+                                // console.log(d.data)
+                                if(coax){
+                                    let sanu = theElm.append("g").attr("id","exter"+ai_di)
+                                    sanu.append("circle")
+                                        .attr("r",1)
+                                        .attr("cx", coax[0]*2)
+                                        .attr("cy", coax[1]*2-20)
+                                        .attr("fill", "black")
+                                    if(layout =='Union'){
+                                        let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                        plotExterior(Outer, theElm,ai_di)
+                                    }
+                                    else{
+                                        let Ext1 = d.data.children[0].cordinate;
+                                        plotExterior(Ext1, theElm,ai_di)
+                                        let Ext2 = d.data.children[1].cordinate;
+                                        plotExterior(Ext2, theElm,ai_di)
+                                    }
+                                }
+                            }
+                            if (d.depth ==7 || d.height ==0){
+                                theElm.select('circle.node')
+                                    .attr('r', 8)
+                                    .style("fill", function (d) {
+                                        return d._children ? "lightsteelblue" : "#fff";
+                                    })
+                                    .attr('cursor', 'pointer')
+                            }
+                            if (d.depth ==3 && d.parent.data.name === "addsub3"){
+                                theElm.select('circle.node')
+                                    .attr('r', 8)
+                                    .style("fill", function (d) {
+                                        return d._children ? "lightsteelblue" : "#fff";
+                                    })
+                                    .attr('cursor', 'pointer')
+                            }
+                            if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1"){
+                                theElm.select('circle.node')
+                                    .attr('r', 8)
+                                    .style("fill", function (d) {
+                                        return d._children ? "lightsteelblue" : "#fff";
+                                    })
+                                    .attr('cursor', 'pointer')
+                            }
+
+                        });
+
+
+                        // Remove any exiting nodes
+                        var nodeExit = node.exit().transition()
+                            .duration(duration)
+                            .attr("transform", function (d) {
+                                return "translate(" + source.y + "," + source.x + ")";
+                            })
+                            .remove();
+
+                        // console.log(nodeExit)
+                        nodeExit._groups[0].forEach(n => {
+                            let theElm = d3.select(n);
+                            let d = theElm.datum()
+                            // console.log(d)
+
+                            if (d.depth ==6 && d.height !=0){
+
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                // console.log(ai_di)
+                                let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                plotExterior_small(Outer, theElm,ai_di)
+
+                            }
+                            if ((d.depth ==5 ||d.depth ==4) && d.height!=0){
+                                //     // console.log(d.id)
+                                let coords = d.data.cordinate;
+                                let ai_di = d.depth
+                                if(layout =='Union'){
+                                    let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                    plotExterior_small(Outer, theElm,ai_di)
+                                }
+                                if(layout =='Overlap'){
+
+                                    let Ext1 = d.data.children[0].cordinate;
+                                    console.log(Ext1)
+                                    plotExterior_small(Ext1, theElm,ai_di)
+                                    let Ext2 = d.data.children[1].cordinate;
+                                    plotExterior_small(Ext2, theElm,ai_di)
+                                }
+                            }
+                            if (d.depth ==3 && d.parent.data.name !== "addsub3"){
+                                //     // console.log(d.id)
+                                console.log(d)
+                                // debugger
+                                let coords = d.data.cordinate;
+
+                                let ai_di = d.depth
+                                // console.log(ai_di)
+                                if(layout =='Union'){
+                                    let Outer = coords.filter(d=>typeof(d[0])==="number")
+                                    plotExterior_small(Outer, theElm,ai_di)
+                                }
+                                else{
+                                    let Ext1 = d.data.children[0].cordinate;
+                                    plotExterior_small(Ext1, theElm,ai_di)
+                                    let Ext2 = d.data.children[1].cordinate;
+                                    plotExterior_small(Ext2, theElm,ai_di)
+                                }
+                            }
+                            if (d.depth ==7 || d.height ==0)
+                            {
+                                theElm.select('circle')
+                                    .attr('r', 1e-6);
+                            }
+                            if (d.depth ==3 && d.parent.data.name === "addsub3"){
+                                theElm.select('circle')
+                                    .attr('r', 1e-6);
+                            }
+                            if (d.data.name == "GP_prog" || d.data.name == "gensub1" || d.data.name == "genpat1" || d.data.name == "addsub3" || d.data.name == "bluetree1")
+                            {
+                                // console.log(d)
+                                theElm.select('circle')
+                                    .attr('r', 1e-6);
+                            }
+                        })
+
+                        // On exit reduce the node circles size to 0
+
+
+                        // On exit reduce the opacity of text labels
+                        nodeExit.select('text')
+                            .style('fill-opacity', 1e-6);
+                        // debugger
+
+                        // ****************** links section ***************************
+
+                        // Update the links...
+                        var link = svg.selectAll('path.link')
+                            .data(links, function (d) {
+                                return d.id;
+                            });
+
+                        // Enter any new links at the parent's previous position.
+                        var linkEnter = link.enter().insert('path', "g")
+                            .attr("class", "link")
+                            .attr('d', function (d) {
+                                var o = {x: source.x0, y: source.y0}
+                                return diagonal(o, o)
+                            });
+
+                        // UPDATE
+                        var linkUpdate = linkEnter.merge(link);
+
+                        // Transition back to the parent element position
+                        linkUpdate.transition()
+                            .duration(duration)
+                            .attr('d', function (d) {
+                                return diagonal(d, d.parent)
+                            });
+
+                        // Remove any exiting links
+                        var linkExit = link.exit().transition()
+                            .duration(duration)
+                            .attr('d', function (d) {
+                                var o = {x: source.x, y: source.y}
+                                return diagonal(o, o)
+                            })
+                            .remove();
+
+                        // Store the old positions for transition.
+                        nodes.forEach(function (d) {
+                            d.x0 = d.x;
+                            d.y0 = d.y;
+                        });
+
+                        // Creates a curved (diagonal) path from parent to the child nodes
+                        function diagonal(s, d) {
+
+                            path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+              ${(s.y + d.y) / 2} ${d.x},
+              ${d.y} ${d.x}`
+
+                            return path
+                        }
+                        function click(d) {
+                            if (d.children) {
+                                d._children = d.children;
+                                d.children = null;
+                            } else {
+                                d.children = d._children;
+                                d._children = null;
+                            }
+                            update(d)
+                        }
+
+                        // index = index +1
+                        // console.log(index)
+
+                    }
+                }
+                var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+                // Function to draw the Interior and Exterior for the polygons
+                function plotExterior_small(Outer, theElm,ai_di) {
+                    var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+
+                    var sanu = theElm.append("g").attr("id","exter_small"+ai_di)
+                    var poly = sanu.append("path")
+                        .attr("class", "line_ext")
+                        .data([Outer])
+                        .attr("d", d=>valueline_small(d))
+                        .attr("fill", function(d){
+                            return myColor(ai_di)
+                            console.log(myColor(ai_di))
+
+                        })
+                        .attr("stroke","black")
+                        .style("stroke-width","2px")
+                        .attr("opacity","0.3")
+                    // console.log(bound)
+                    let linebound = sanu.append("path")
+                        .data([bound])
+                        .attr("class","linebound")
+                        .attr("d", d=>valueline_small(d))
+                        .attr("stroke","black")
+                        .attr("fill","none")
+                }
+                function plotExterior(Outer, theElm,ai_di) {
+                    var bound = [[0,0],[0,20],[20,20],[20,0],[0,0]]
+
+                    var myColor = ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#9467bd","#e377c2","#7f7f7f","#bcbd22","#17becf"]
+                    // sanu.selectAll("*").remove();
+                    var sanu = theElm.append("g").attr("id","exter"+ai_di)
+                    var poly = sanu.append("path")
+                        .attr("class", "line_ext")
+                        .data([Outer])
+                        .attr("d", d=>valueline(d))
+                        .attr("fill", function(d){
+                            let c = Math.round((ai_di -3)/(7-3)*(10-0))
+                            return myColor[c]
+
+
+                        })
+                        .attr("stroke","black")
+                        .style("stroke-width","2px")
+                        .attr("opacity","0.3")
+                    // console.log(bound)
+                    let linebound = sanu.append("path")
+                        .data([bound])
+                        .attr("class","linebound")
+                        .attr("d", d=>valueline(d))
+                        .attr("stroke","black")
+                        .attr("fill","none")
+                    sanu.attr("transform", "translate("
+                        + 0 + "," + -20 + ")")
+                }
+                function plotInterior(Inner, theElm, ai_di){
+                    var sanu1 = theElm.append("g").attr("id","inter"+ai_di)
+                    let poly_in =   sanu1.append("path")
+                        .attr("class", "line_int")
+                        .data([Inner])
+                        .attr("d",  d => valueline(d))
+                        .attr("fill-rule","nonzero")
+                        .attr("fill","red")
+                        .attr("stroke", "blue")
+                        .style("stroke-width","1px")
+                    sanu1.attr("transform", "translate("
+                        + 0 + "," + -20 + ")")
+                }
+            }
+
+
+        }
+    })
+
+
+</script>
